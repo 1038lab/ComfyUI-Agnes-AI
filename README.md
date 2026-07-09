@@ -2,7 +2,7 @@
 
 ComfyUI custom nodes for the **Agnes AI API** — a free, cloud-based AI generation platform. Generate images, create videos, enhance prompts, and analyze visuals — all without a local GPU. Zero extra Python dependencies.
 
-> **Get a free API key:** [platform.agnes-ai.com](https://platform.agnes-ai.com)
+![Agnes-AI_nodes](example_workflows/Agnes-AI_Nodes.jpg)
 
 ## Why Agnes AI?
 
@@ -40,6 +40,8 @@ Download the [latest release](https://github.com/1038lab/ComfyUI-Agnes-AI/releas
 No `pip install` needed — zero additional dependencies.
 
 ## API Key
+
+> **Get a free API key:** [platform.agnes-ai.com](https://platform.agnes-ai.com)
 
 Priority: **widget key** > **env var** (`AGNES_API_KEY`) > **saved config**.
 
