@@ -147,4 +147,4 @@ class AgnesVideo:
 
 
 NODE_CLASS_MAPPINGS = {"AgnesVideo": AgnesVideo}
-NODE_DISPLAY_NAME_MAPPINGS = {"AgnesVideo": "Agnes-ai Video"}
+NODE_DISPLAY_NAME_MAPPINGS = {"AgnesVideo": "Agnes-AI Video"}
