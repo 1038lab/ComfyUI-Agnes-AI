@@ -99,4 +99,4 @@ class AgnesImage:
 
 
 NODE_CLASS_MAPPINGS = {"AgnesImage": AgnesImage}
-NODE_DISPLAY_NAME_MAPPINGS = {"AgnesImage": "Agnes-ai Image"}
+NODE_DISPLAY_NAME_MAPPINGS = {"AgnesImage": "Agnes-AI Image"}
