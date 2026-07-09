@@ -240,8 +240,11 @@ def generate_image(api_key: str, prompt: str, images_b64: list = None,
     items = data.get("data", [])
     if not items:
         raise RuntimeError("No images returned")
-    if "b64_json" in items[0]:
-        raw = base64.b64decode(items[0]["b64_json"])
+    first = items[0]
+    if not first.get("url") and not first.get("b64_json"):
+        raise RuntimeError(f"Unexpected API response: {json.dumps(first)[:200]}")
+    if first.get("b64_json"):
+        raw = base64.b64decode(first["b64_json"])
         try:
             from folder_paths import get_temp_directory
             tmpdir = get_temp_directory()
