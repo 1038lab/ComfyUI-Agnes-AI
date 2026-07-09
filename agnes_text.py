@@ -84,4 +84,4 @@ class AgnesText:
 
 
 NODE_CLASS_MAPPINGS = {"AgnesText": AgnesText}
-NODE_DISPLAY_NAME_MAPPINGS = {"AgnesText": "Agnes-ai Text"}
+NODE_DISPLAY_NAME_MAPPINGS = {"AgnesText": "Agnes-AI Text"}
