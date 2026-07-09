@@ -82,6 +82,7 @@ _Coming soon — check the [example_workflows](./example_workflows) directory._
 ## Credits
 
 - **Agnes AI** — Free API and model infrastructure. Get your key at [platform.agnes-ai.com](https://platform.agnes-ai.com)
+- **[Agnes-AI](https://github.com/1038lab/Agnes-AI)** — This ComfyUI node is based on the Agnes-AI CLI toolkit. Same API, same models, zero-dependency Python.
 - Created by [AILab](https://github.com/1038lab)
 
 ## License
