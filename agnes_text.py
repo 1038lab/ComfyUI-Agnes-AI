@@ -18,7 +18,7 @@ def _pil_to_b64_uri(img: Image.Image) -> str:
 
 
 class AgnesText:
-    CATEGORY = "🧪AILab/Agnes-ai"
+    CATEGORY = "🧪AILab/🤖Agnes-AI"
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("output",)
     FUNCTION = "process"

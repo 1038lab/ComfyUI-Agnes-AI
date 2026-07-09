@@ -26,7 +26,7 @@ def _pil_to_tensor(img: Image.Image):
 
 
 class AgnesImage:
-    CATEGORY = "🧪AILab/Agnes-ai"
+    CATEGORY = "🧪AILab/🤖Agnes-AI"
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("images",)
     FUNCTION = "generate"

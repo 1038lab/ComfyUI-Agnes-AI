@@ -14,7 +14,7 @@ def _is_masked(key: str) -> bool:
 
 
 class AgnesConfig:
-    CATEGORY = "🧪AILab/Agnes-ai"
+    CATEGORY = "🧪AILab/🤖Agnes-AI"
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("status",)
     FUNCTION = "apply"

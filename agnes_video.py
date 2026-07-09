@@ -43,7 +43,7 @@ def _get_output_dir() -> str:
 
 
 class AgnesVideo:
-    CATEGORY = "🧪AILab/Agnes-ai"
+    CATEGORY = "🧪AILab/🤖Agnes-AI"
     RETURN_TYPES = (_VIDEO_TYPE, "IMAGE")
     RETURN_NAMES = ("video", "last_frame")
     FUNCTION = "generate"
