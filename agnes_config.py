@@ -78,4 +78,4 @@ class AgnesConfig:
 
 
 NODE_CLASS_MAPPINGS = {"AgnesConfig": AgnesConfig}
-NODE_DISPLAY_NAME_MAPPINGS = {"AgnesConfig": "Agnes-ai Config"}
+NODE_DISPLAY_NAME_MAPPINGS = {"AgnesConfig": "Agnes-AI Config"}
