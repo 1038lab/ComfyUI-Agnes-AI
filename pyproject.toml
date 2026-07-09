@@ -1,7 +1,7 @@
 [project]
 name = "ComfyUI-Agnes-AI"
 description = "ComfyUI custom nodes for the Agnes AI API — a free, cloud-based AI generation platform. Generate images, create videos, enhance prompts, and analyze visuals — all without a local GPU. Zero extra Python dependencies."
-version = "1.0.0"
+version = "0.0.1"
 license = {file = "LICENSE"}
 
 dependencies = []
