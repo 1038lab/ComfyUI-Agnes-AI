@@ -4,6 +4,15 @@ ComfyUI custom nodes for the **Agnes AI API** — a free, cloud-based AI generat
 
 ![Agnes-AI_nodes](example_workflows/Agnes-AI_Nodes.jpg)
 
+## News & Updates
+
+- **2026/07/29**: Update ComfyUI-Agnes-AI to **v1.1.0** ( [update.md](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/updates.md#v110-20260729) )
+![V1_1_0](https://github.com/user-attachments/assets/1ad90d3a-d2da-4c7c-bdd0-e8bfbe0d4616)
+
+### v1.0.0
+
+Initial release with Agnes-AI Image, Video, Text, and Config nodes.
+
 ## Why Agnes AI?
 
 | | |
@@ -13,14 +22,16 @@ ComfyUI custom nodes for the **Agnes AI API** — a free, cloud-based AI generat
 | **One API, many models** | Image gen, video gen, chat, vision — all through a single key |
 | **Multi-image compose** | Up to 4 reference images for img2img composition |
 | **Video generation** | Text-to-video, image-to-video, and keyframe interpolation |
-| **Smart text styles** | Prompt enhancement, translation, art style extraction, image description |
+| **Smart text presets** | Prompt enhancement, translation, art style extraction, image description |
+
+> **Get a free API key:** [platform.agnes-ai.com](https://platform.agnes-ai.com)
 
 ## Features
 
 - **Image Generation** — Text2img / img2img with up to 4 reference images. Auto-detects mode based on input connections. 1K / 2K / 4K resolution.
-- **Video Generation** — Text-to-video, image-to-video, first-and-last-frame keyframe animation. 480p / 720p / 1080p, 2–15 seconds, configurable frame rate.
-- **Prompt Enhancement** — 4 built-in styles: enhance, translate, extract art style, describe image. Custom system prompt override. Vision-based styles with image input.
-- **Config Node** — Save API keys (comma-separated for rotation), set default models, customize prompt styles via JSON.
+- **Video Generation** — Text-to-video, image-to-video, first-and-last-frame keyframe animation. 480p / 720p / 1080p, 3–18 seconds, configurable frame rate, negative prompt, and full frame/audio extraction.
+- **Prompt Enhancement** — 4 built-in presets: enhance, translate, extract art style, describe image. Custom system prompt override. Vision-based presets with image input.
+- **Settings Panel** — Configure API key, select default models, all from ComfyUI's built-in Settings Panel. Supports multiple API keys for load balancing.
 
 ## Installation
 
@@ -39,41 +50,53 @@ Download the [latest release](https://github.com/1038lab/ComfyUI-Agnes-AI/releas
 
 No `pip install` needed — zero additional dependencies.
 
-## API Key
+## API Key Setup
 
-> **Get a free API key:** [platform.agnes-ai.com](https://platform.agnes-ai.com)
+Open ComfyUI **Settings** (⚙️ gear icon) → search **"Agnes-AI"** → enter your API key.
 
-Priority: **widget key** > **env var** (`AGNES_API_KEY`) > **saved config**.
+- Multiple keys can be comma-separated for **round-robin load balancing**
+- Alternatively, set the `AGNES_API_KEY` environment variable
+- Key is saved to `agnes_config.json` and persists across restarts
 
-Key is auto-saved to `agnes_config.json` on first use. Use **Agnes-ai Config** node to view or edit it anytime. Multiple keys can be comma-separated (round-robin rotation).
+Priority: **env var** (`AGNES_API_KEY`) > **saved config** (Settings Panel).
 
 ## Nodes
 
-### 🖼️ Agnes-ai Image
+### 🖼️ Agnes-AI Image
 Generate images from text, or compose new images from up to 4 reference images. Auto-detects text2img (no image input) vs img2img (images connected). When images are connected without a prompt, defaults to merging them into one cohesive composition. Supports 1K / 2K / 4K with various aspect ratios.
 
-### 🎬 Agnes-ai Video
+### 🎬 Agnes-AI Video
 Three modes:
 - **Text To Video** — generate video from text
 - **Image To Video** — animate from a start frame
 - **First and Last frame** — interpolate between two images
 
-Supports 480p / 720p / 1080p, 2–15 seconds, configurable frame rate. Last frame is automatically extracted and available as a separate IMAGE output.
+Supports 480p / 720p / 1080p, 3–18 seconds, configurable frame rate. 
 
-### ✏️ Agnes-ai Text
-Process prompts through 4 built-in styles:
+**Inputs:**
+- **prompt** — Description of the video to generate.
+- **negative_prompt** — (Optional) Describe what to avoid in the generated video.
+- **image** — Start frame (for Image To Video / First and Last frame).
+- **end_frame** — End frame (for First and Last frame mode).
+- **quality**, **aspect_ratio**, **duration**, **frame_rate**, **seed**.
 
-| Style | Needs Image | Use Case |
-|-------|-------------|----------|
+**Outputs:**
+- **video** — The generated video path or video object.
+- **last_frame** — Automatically extracted last frame of the video (`IMAGE`).
+- **frames** — The full sequence of extracted video frames as a batched `IMAGE` tensor (requires local `ffmpeg`).
+- **audio** — Extracted audio track as a standard ComfyUI `AUDIO` waveform (requires local `ffmpeg`).
+
+### ✏️ Agnes-AI Text
+Process prompts through 4 built-in presets:
+
+| Preset | Needs Image | Use Case |
+|--------|-------------|----------|
 | Prompt Enhance | No | Expand brief prompts with vivid visual context |
 | Translate to English | No | Translate prompts while preserving visual details |
 | Extract Art Style from Image | Yes | Analyze artistic style from a reference image |
 | Image Detailed Description | Yes | Generate detailed AI-ready prompts from images |
 
-Custom system prompt override supported for all styles.
-
-### ⚙️ Agnes-ai Config
-Save API keys (comma-separated for round-robin rotation), select default models for each node, and customize prompt styles via JSON. All values persist across restarts. Key display is masked (`sk-****abcd`).
+Custom system prompt override supported for all presets. Supports `agnes-2.5-flash` (default), `agnes-2.5-pro-alpha` (paid model), `agnes-2.0-flash`, and `agnes-1.5-flash` configured via the Settings Panel.
 
 ## Example Workflows
 
@@ -82,7 +105,6 @@ _Coming soon — check the [example_workflows](./example_workflows) directory._
 ## Credits
 
 - **Agnes AI** — Free API and model infrastructure. Get your key at [platform.agnes-ai.com](https://platform.agnes-ai.com)
-- **[Agnes-AI](https://github.com/1038lab/Agnes-AI)** — This ComfyUI node is based on the Agnes-AI CLI toolkit. Same API, same models, zero-dependency Python.
 - Created by [AILab](https://github.com/1038lab)
 
 ## License
