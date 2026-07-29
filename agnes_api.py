@@ -15,7 +15,7 @@ ASPECT_RATIOS = [
     "3:2", "4:3", "5:4", "16:9", "21:9",
 ]
 
-TEXT_MODELS = ["agnes-2.0-flash", "agnes-1.5-flash"]
+TEXT_MODELS = ["agnes-2.5-flash", "agnes-2.5-pro-alpha", "agnes-2.0-flash", "agnes-1.5-flash"]
 IMAGE_MODELS = ["agnes-image-2.1-flash", "agnes-image-2.0-flash"]
 VIDEO_MODELS = ["agnes-video-v2.0"]
 
@@ -24,7 +24,8 @@ DEFAULT_STYLES = {
         "system_prompt": (
             "You are an expert prompt engineer for AI image generation. Expand and enrich "
             "the given prompt with vivid visual context: subject details, lighting, color palette, "
-            "composition, mood, camera angle, and style. Keep it concise but powerful."
+            "composition, mood, camera angle, and style. Output ONLY the expanded prompt text. "
+            "Do NOT include any title, prefix, preamble, or labels such as 'Prompt:' or '**Prompt:**'."
         ),
         "requires_image": False,
     },
@@ -76,25 +77,23 @@ def _parse_keys(raw: str) -> list[str]:
     return [k.strip() for k in raw.replace(";", ",").replace("\n", ",").split(",") if k.strip()]
 
 
-def get_api_key(widget_key: str = "") -> str:
-    cfg = _load_config()
-    if widget_key.strip():
-        cfg["api_key"] = widget_key.strip()
-        cfg["api_key_index"] = 0
-        _save_config(cfg)
-        return widget_key.strip().split(",")[0].strip()
-
+def get_api_key() -> str:
+    """Get API key from config file or environment variables."""
+    # Check environment variables first
     env = os.environ.get("AGNES_API_KEY") or os.environ.get("AGNES_API_TOKEN") or ""
     if env:
         keys = _parse_keys(env)
         return keys[0]
 
+    # Read from config file (supports load balancing with multiple keys)
+    cfg = _load_config()
     raw = cfg.get("api_key", "")
     if not raw:
         return ""
     keys = _parse_keys(raw)
     if len(keys) == 1:
         return keys[0]
+    # Round-robin load balancing
     idx = cfg.get("api_key_index", 0)
     key = keys[idx % len(keys)]
     cfg["api_key_index"] = (idx + 1) % len(keys)
@@ -111,7 +110,7 @@ def _default_model(model_type: str) -> str:
     return {
         "image": "agnes-image-2.1-flash",
         "video": "agnes-video-v2.0",
-        "chat": "agnes-2.0-flash",
+        "chat": "agnes-2.5-flash",
     }.get(model_type, "")
 
 def get_styles() -> dict:
@@ -160,7 +159,7 @@ def resolve_size(quality: str, ratio: str, quality_map: dict,
 
 # ── Video helpers ────────────────────────────────────────────────────
 
-def duration_to_num_frames(duration: int, fps: int) -> int:
+def duration_to_num_frames(duration: float, fps: int) -> int:
     target = duration * fps
     n = max(1, round((target - 1) / 8))
     return min(n * 8 + 1, 441)
@@ -266,9 +265,12 @@ def create_video(api_key: str, prompt: str, mode: str = "text2video",
                  image_b64: str = None, end_frame_b64: str = None,
                  size: str = None, num_frames: int = 121,
                  frame_rate: int = 24, seed: int = None,
+                 negative_prompt: str = None,
                  output_dir: str = None) -> str:
     body = {"model": "agnes-video-v2.0", "prompt": prompt,
             "num_frames": num_frames, "frame_rate": frame_rate}
+    if negative_prompt:
+        body["negative_prompt"] = negative_prompt
     if size:
         parts = size.split("x")
         if len(parts) == 2:
@@ -335,9 +337,9 @@ def _download(url: str, output_dir: str = None) -> str:
 # ── Text ─────────────────────────────────────────────────────────────
 
 def chat(api_key: str, messages: list, temperature: float = 0.7,
-         max_tokens: int = 2048) -> str:
+         max_tokens: int = 2048, model: str = "") -> str:
     body = {
-        "model": "agnes-2.0-flash",
+        "model": get_model("chat", model),
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,

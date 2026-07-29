@@ -1,4 +1,5 @@
 import base64
+import re
 from io import BytesIO
 from PIL import Image
 import numpy as np
@@ -17,8 +18,23 @@ def _pil_to_b64_uri(img: Image.Image) -> str:
     return f"data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}"
 
 
+def _clean_prompt_output(text: str) -> str:
+    text = text.strip()
+    patterns = [
+        r"^\*\*prompt:\*\*\s*",
+        r"^prompt:\s*",
+        r"^\*\*enhanced prompt:\*\*\s*",
+        r"^enhanced prompt:\s*",
+        r"^\*\*output:\*\*\s*",
+        r"^output:\s*",
+    ]
+    for pat in patterns:
+        text = re.sub(pat, "", text, flags=re.IGNORECASE)
+    return text.strip()
+
+
 class AgnesText:
-    CATEGORY = "🧪AILab/🤖Agnes-AI"
+    CATEGORY = "🧪AILab/⚡Agnes-AI"
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("output",)
     FUNCTION = "process"
@@ -28,10 +44,7 @@ class AgnesText:
         styles = get_styles()
         return {
             "required": {
-                "api_key": ("STRING", {
-                    "default": "", "multiline": False, "placeholder": "sk-...",
-                }),
-                "style": (list(styles.keys()), {"default": "Prompt Enhance"}),
+                "preset": (list(styles.keys()), {"default": "Prompt Enhance"}),
                 "prompt": ("STRING", {
                     "default": "", "multiline": True,
                     "placeholder": "Enter prompt to enhance or translate...",
@@ -40,26 +53,26 @@ class AgnesText:
             "optional": {
                 "system_prompt": ("STRING", {
                     "multiline": True, "default": "",
-                    "placeholder": "Custom system prompt (overrides style preset)",
+                    "placeholder": "Custom system prompt (overrides preset)",
                 }),
                 "image": ("IMAGE", {
-                    "tooltip": "Image input for styles that require it (e.g. Image Detailed Description)",
+                    "tooltip": "Image input for presets that require it (e.g. Image Detailed Description)",
                 }),
             },
         }
 
-    def process(self, api_key="", style="", prompt="", system_prompt="", image=None):
-        key = get_api_key(api_key)
+    def process(self, preset="", prompt="", system_prompt="", image=None):
+        key = get_api_key()
         if not key:
-            raise ValueError("API key required")
+            return ("API key required — set it in ComfyUI Settings Panel → Agnes-AI",)
 
         styles = get_styles()
-        style_def = styles.get(style, {})
+        style_def = styles.get(preset, {})
         sys_prompt = system_prompt.strip() or style_def.get("system_prompt", "")
 
         if style_def.get("requires_image", False):
             if image is None:
-                raise ValueError(f"Image input required for style: {style}")
+                return ("Image required for this mode",)
             pil = _tensor_to_pil(image)
             messages = [
                 {"role": "system", "content": sys_prompt},
@@ -73,14 +86,17 @@ class AgnesText:
             ]
         else:
             if not prompt.strip():
-                raise ValueError("Prompt text required for this style")
+                return ("Prompt text required for this preset",)
             messages = [
                 {"role": "system", "content": sys_prompt},
                 {"role": "user", "content": prompt.strip()},
             ]
 
-        result = chat(key, messages, temperature=0.3, max_tokens=2048)
-        return (result.strip(),)
+        try:
+            result = chat(key, messages, temperature=0.3, max_tokens=2048)
+            return (_clean_prompt_output(result),)
+        except Exception as e:
+            return (f"Error: {str(e)}",)
 
 
 NODE_CLASS_MAPPINGS = {"AgnesText": AgnesText}
