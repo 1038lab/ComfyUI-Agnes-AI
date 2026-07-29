@@ -2,7 +2,7 @@
 
 ## V1.1.0 (2026/07/29)  
 **Settings Panel Integration** — Configuration moved from node to ComfyUI Settings Panel.
-
+<img width="600" alt="agnes-ai-settings" src="https://github.com/user-attachments/assets/1ad90d3a-d2da-4c7c-bdd0-e8bfbe0d4616" />
 - **New:** Integrated Agnes-AI settings directly into the ComfyUI Settings Panel (⚙️) to configure the API key and select default models for text, image, and video generation.
 - **New:** Added support for `agnes-2.5-flash` and `agnes-2.5-pro-alpha` text models.
 - **Improved:** Set `agnes-2.5-flash` as default text model (`agnes-2.5-pro-alpha` is available as a paid model option).
