@@ -2,6 +2,7 @@ import base64, os, tempfile
 from io import BytesIO
 from PIL import Image
 import numpy as np
+import torch
 
 from agnes_api import (
     get_api_key, create_video, resolve_size, duration_to_num_frames,
@@ -27,7 +28,6 @@ def _tensor_to_pil(tensor, index=0) -> Image.Image:
 
 def _pil_to_tensor(img: Image.Image):
     a = np.array(img.convert("RGB"), dtype=np.float32) / 255.0
-    import torch
     return torch.from_numpy(a).unsqueeze(0)
 
 
@@ -43,20 +43,15 @@ def _get_output_dir() -> str:
 
 
 class AgnesVideo:
-    CATEGORY = "🧪AILab/🤖Agnes-AI"
-    RETURN_TYPES = (_VIDEO_TYPE, "IMAGE")
-    RETURN_NAMES = ("video", "last_frame")
+    CATEGORY = "🧪AILab/⚡Agnes-AI"
+    RETURN_TYPES = (_VIDEO_TYPE, "IMAGE", "IMAGE", "AUDIO")
+    RETURN_NAMES = ("video", "last_frame", "frames", "audio")
     FUNCTION = "generate"
 
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "api_key": ("STRING", {
-                    "default": "", "multiline": False,
-                    "placeholder": "sk-...",
-                    "tooltip": "API key (leave empty to use saved key from Config node)",
-                }),
                 "mode": (VIDEO_MODES, {
                     "default": "Text To Video",
                     "tooltip": "Text To Video: generate from prompt\n"
@@ -65,7 +60,7 @@ class AgnesVideo:
                 }),
                 "prompt": ("STRING", {
                     "default": "", "multiline": True,
-                    "placeholder": "A cinematic drone shot over misty mountains...",
+                    "placeholder": "Cinematic camera movement, natural motion.",
                     "tooltip": "Description of the video to generate",
                 }),
                 "quality": (list(QUALITY_VIDEO.keys()), {
@@ -76,9 +71,9 @@ class AgnesVideo:
                     "default": "auto",
                     "tooltip": "Output aspect ratio. 'auto' matches input image ratio when img2video/keyframes",
                 }),
-                "duration": ("INT", {
-                    "default": 5, "min": 2, "max": 15, "step": 1,
-                    "tooltip": "Video duration in seconds (2-15)",
+                "duration": ("FLOAT", {
+                    "default": 5.0, "min": 3.0, "max": 18.0, "step": 0.5,
+                    "tooltip": "Video duration in seconds (3-18)",
                 }),
                 "frame_rate": ("INT", {
                     "default": 24, "min": 1, "max": 60, "step": 1,
@@ -96,15 +91,20 @@ class AgnesVideo:
                 "end_frame": ("IMAGE", {
                     "tooltip": "End frame for First and Last frame mode",
                 }),
+                "negative_prompt": ("STRING", {
+                    "default": "", "multiline": True,
+                    "placeholder": "Elements to avoid in the video...",
+                    "tooltip": "Negative prompt — describes what to avoid in the generated video",
+                }),
             },
         }
 
-    def generate(self, api_key="", mode="Text To Video", prompt="", quality="720p",
-                 aspect_ratio="auto", duration=5, frame_rate=24,
-                 seed=0, image=None, end_frame=None):
-        key = get_api_key(api_key)
+    def generate(self, mode="Text To Video", prompt="", quality="720p",
+                 aspect_ratio="auto", duration=5.0, frame_rate=24,
+                 seed=0, image=None, end_frame=None, negative_prompt=""):
+        key = get_api_key()
         if not key:
-            raise ValueError("API key required")
+            raise ValueError("API key required — set it in ComfyUI Settings Panel → Agnes-AI")
         if not prompt.strip() and mode == "Text To Video":
             raise ValueError("Prompt required for Text To Video")
 
@@ -133,6 +133,7 @@ class AgnesVideo:
                             image_b64=img_b64, end_frame_b64=end_b64,
                             size=size, num_frames=num_frames,
                             frame_rate=frame_rate, seed=actual_seed,
+                            negative_prompt=negative_prompt.strip(),
                             output_dir=out)
 
         # Last frame extraction
@@ -142,8 +143,74 @@ class AgnesVideo:
         else:
             last_frame = _pil_to_tensor(Image.new("RGB", (64, 64), (0, 0, 0)))
 
+        # Extract all frames
+        frames = _extract_all_frames(path)
+
+        # Extract audio
+        audio = _extract_audio(path)
+
         video_out = _ApiInput.VideoFromFile(path) if _VIDEO_TYPE == "VIDEO" else path
-        return (video_out, last_frame)
+        return (video_out, last_frame, frames, audio)
+
+
+def _extract_all_frames(video_path: str):
+    """Extract all frames from the video as a batched IMAGE tensor."""
+    try:
+        import subprocess
+        tmp_dir = tempfile.mkdtemp(prefix="agnes_frames_")
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", video_path,
+             os.path.join(tmp_dir, "frame_%06d.png")],
+            capture_output=True, timeout=120,
+        )
+        frame_files = sorted(
+            f for f in os.listdir(tmp_dir) if f.endswith(".png")
+        )
+        if not frame_files:
+            return _pil_to_tensor(Image.new("RGB", (64, 64), (0, 0, 0)))
+        tensors = []
+        for fname in frame_files:
+            img = Image.open(os.path.join(tmp_dir, fname)).convert("RGB")
+            tensors.append(_pil_to_tensor(img))
+        # Clean up temp files
+        for fname in frame_files:
+            try:
+                os.unlink(os.path.join(tmp_dir, fname))
+            except OSError:
+                pass
+        try:
+            os.rmdir(tmp_dir)
+        except OSError:
+            pass
+        return torch.cat(tensors, dim=0)
+    except Exception:
+        return _pil_to_tensor(Image.new("RGB", (64, 64), (0, 0, 0)))
+
+
+def _extract_audio(video_path: str):
+    """Extract audio from the video and return as ComfyUI AUDIO dict."""
+    try:
+        import subprocess
+        import torchaudio
+        tmp_audio = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+        tmp_audio.close()
+        result = subprocess.run(
+            ["ffmpeg", "-y", "-i", video_path,
+             "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2",
+             tmp_audio.name],
+            capture_output=True, timeout=60,
+        )
+        if result.returncode != 0:
+            os.unlink(tmp_audio.name)
+            return {"waveform": torch.zeros(1, 2, 0), "sample_rate": 44100}
+        waveform, sample_rate = torchaudio.load(tmp_audio.name)
+        os.unlink(tmp_audio.name)
+        # ComfyUI AUDIO format: {"waveform": (batch, channels, samples), "sample_rate": int}
+        if waveform.dim() == 2:
+            waveform = waveform.unsqueeze(0)  # Add batch dimension
+        return {"waveform": waveform, "sample_rate": sample_rate}
+    except Exception:
+        return {"waveform": torch.zeros(1, 2, 0), "sample_rate": 44100}
 
 
 NODE_CLASS_MAPPINGS = {"AgnesVideo": AgnesVideo}

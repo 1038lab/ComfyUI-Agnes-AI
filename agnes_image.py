@@ -10,9 +10,11 @@ from agnes_api import (
 
 
 def _pil_to_b64(img: Image.Image) -> str:
+    """Convert PIL image to Data URI base64 string (required by Agnes API)."""
     buf = BytesIO()
     img.save(buf, format="PNG")
-    return base64.b64encode(buf.getvalue()).decode()
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    return f"data:image/png;base64,{b64}"
 
 
 def _tensor_to_pil(tensor, index=0) -> Image.Image:
@@ -26,7 +28,7 @@ def _pil_to_tensor(img: Image.Image):
 
 
 class AgnesImage:
-    CATEGORY = "🧪AILab/🤖Agnes-AI"
+    CATEGORY = "🧪AILab/⚡Agnes-AI"
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("images",)
     FUNCTION = "generate"
@@ -35,9 +37,6 @@ class AgnesImage:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "api_key": ("STRING", {
-                    "default": "", "multiline": False, "placeholder": "sk-...",
-                }),
                 "prompt": ("STRING", {
                     "default": "", "multiline": True,
                     "placeholder": "Optional when images are connected",
@@ -61,12 +60,12 @@ class AgnesImage:
             },
         }
 
-    def generate(self, api_key="", prompt="", quality="1K",
+    def generate(self, prompt="", quality="1K",
                  aspect_ratio="auto", image=None, image_2=None, image_3=None,
                  image_4=None):
-        key = get_api_key(api_key)
+        key = get_api_key()
         if not key:
-            raise ValueError("API key required")
+            raise ValueError("API key required — set it in ComfyUI Settings Panel → Agnes-AI")
 
         has_images = any(x is not None for x in (image, image_2, image_3, image_4))
         if not prompt.strip() and not has_images:
