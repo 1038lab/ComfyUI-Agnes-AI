@@ -123,9 +123,9 @@ All presets are externalized in `presets/styles.json`. You can customize them or
 ## Example Workflows
 
 Ready-to-use workflows are available in the [example_workflows](./example_workflows) directory:
-- **`01_Text_to_Image_and_Fusion.json`** — Text-to-image generation and multi-image fusion with `Agnes-AI Image`.
-- **`02_Text_and_Image_to_Video.json`** — Text-to-video and start-frame keyframe animation with `Agnes-AI Video`.
-- **`03_Prompt_Enhance_and_Vision.json`** — Prompt expansion and image reverse-prompt description with `Agnes-AI Text`.
+- **[01_Text_to_Image_and_Fusion.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/01_Text_to_Image_and_Fusion.json)** — Text-to-image generation and multi-image fusion with `Agnes-AI Image`.
+- **[02_Text_and_Image_to_Video.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/02_Text_and_Image_to_Video.json)** — Text-to-video and start-frame keyframe animation with `Agnes-AI Video`.
+- **[03_Prompt_Enhance_and_Vision.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/03_Prompt_Enhance_and_Vision.json)** — Prompt expansion and image reverse-prompt description with `Agnes-AI Text`.
 
 Simply drag and drop any of these `.json` files into ComfyUI to get started immediately!
 
