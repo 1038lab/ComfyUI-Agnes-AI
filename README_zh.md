@@ -144,9 +144,15 @@ git clone https://github.com/1038lab/ComfyUI-Agnes-AI
 ## 示例工作流 (即拖即跑)
 
 在插件的 [example_workflows](./example_workflows) 目录中提供了经过全面测试的标准工作流：
-- **`01_Text_to_Image_and_Fusion.json`**：高质量文生图与双图免提示词场景融合工作流。
-- **`02_Text_and_Image_to_Video.json`**：文生视频与首帧动画图生视频工作流。
-- **`03_Prompt_Enhance_and_Vision.json`**：提示词智能扩写与图片反推提示词工作流。
+
+- **[01_Text_to_Image_and_Fusion.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/01_Text_to_Image_and_Fusion.json)**：高质量文生图与双图免提示词场景融合工作流。
+ <img src="example_workflows/01_Text_to_Image_and_Fusion.jpg" width="350" >
+ 
+- **[02_Text_and_Image_to_Video.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/02_Text_and_Image_to_Video.json)**：文生视频与首帧动画图生视频工作流。
+ <img src="example_workflows/02_Text_and_Image_to_Video.jpg" width="350" >
+ 
+- **[03_Prompt_Enhance_and_Vision.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/03_Prompt_Enhance_and_Vision.json)**：提示词智能扩写与图片反推提示词工作流。
+ <img src="example_workflows/03_Prompt_Enhance_and_Vision.jpg" width="350" >
 
 > **使用方法**：直接将任意 `.json` 文件拖入你的 ComfyUI 浏览器窗口即可自动加载运行！
 
