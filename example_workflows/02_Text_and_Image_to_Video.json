@@ -1,0 +1,500 @@
+{
+  "id": "e0863cc6-2a9a-4ef4-a654-27f88db883c9",
+  "revision": 0,
+  "last_node_id": 16,
+  "last_link_id": 16,
+  "nodes": [
+    {
+      "id": 3,
+      "type": "SaveVideo",
+      "pos": [
+        506.69250900001566,
+        82.0062600145447
+      ],
+      "size": [
+        732.6604010175697,
+        543.9049239552767
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.35.0",
+        "Node name for S&R": "SaveVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "video/AgnesAI_Text2Video",
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "video/AgnesAI_Text2Video",
+        "format": "auto",
+        "format.codec": "auto",
+        "codec": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "type": "Note",
+      "pos": [
+        58.231770113895244,
+        739.688599714899
+      ],
+      "size": [
+        420,
+        130
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": "",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "### Agnes-AI: Image to Video\n1. Load a start frame with LoadImage\n2. Connect to first_image input of Agnes-AI Video\n3. Select mode 'Image To Video'\n4. Describe the motion or leave prompt for smooth animation!"
+      ],
+      "widgets_values_named": {
+        "text": "### Agnes-AI: Image to Video\n1. Load a start frame with LoadImage\n2. Connect to first_image input of Agnes-AI Video\n3. Select mode 'Image To Video'\n4. Describe the motion or leave prompt for smooth animation!"
+      },
+      "color": "#332",
+      "bgcolor": "#553"
+    },
+    {
+      "id": 7,
+      "type": "SaveVideo",
+      "pos": [
+        823.0565101049517,
+        742.4319640122119
+      ],
+      "size": [
+        408.78620970406746,
+        711.1793145561012
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.35.0",
+        "Node name for S&R": "SaveVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "video/AgnesAI_Img2Video",
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "video/AgnesAI_Img2Video",
+        "format": "auto",
+        "format.codec": "auto",
+        "codec": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "type": "LoadImage",
+      "pos": [
+        53.17061810336352,
+        919.9332849846661
+      ],
+      "size": [
+        328.0944571325102,
+        520.0182932907894
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.35.0",
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "image (1).jpg",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "image (1).jpg",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 6,
+      "type": "AgnesVideo",
+      "pos": [
+        392.2806608312646,
+        931.0679661403522
+      ],
+      "size": [
+        420,
+        380
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "first_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "end_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_images.ref_image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_audios.ref_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "ref_video",
+          "shape": 7,
+          "type": "VIDEO",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": [
+            3
+          ]
+        },
+        {
+          "name": "last_frame",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "frames",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "Image To Video",
+        "Smooth camera zoom in and natural hair movement in the gentle breeze",
+        "720P",
+        "3:4",
+        5,
+        100,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "mode": "Image To Video",
+        "prompt": "Smooth camera zoom in and natural hair movement in the gentle breeze",
+        "quality": "720P",
+        "aspect_ratio": "3:4",
+        "duration": 5,
+        "seed": 100,
+        "control_after_generate": "fixed"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 1,
+      "type": "Note",
+      "pos": [
+        47.305463227590714,
+        82.33495521885655
+      ],
+      "size": [
+        420,
+        130
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": "",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "### Agnes-AI: Text to Video\n1. Powered by agnes-video-2.5-flash\n2. Select mode 'Text To Video'\n3. Enter prompt, choose quality (720P / 1080P), duration (4-12s)\n4. Real-time progress bar displayed during generation!"
+      ],
+      "widgets_values_named": {
+        "text": "### Agnes-AI: Text to Video\n1. Powered by agnes-video-2.5-flash\n2. Select mode 'Text To Video'\n3. Enter prompt, choose quality (720P / 1080P), duration (4-12s)\n4. Real-time progress bar displayed during generation!"
+      },
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 16,
+      "type": "AgnesVideo",
+      "pos": [
+        49.93398086010654,
+        255.05513467191827
+      ],
+      "size": [
+        420,
+        380
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "first_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "end_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_images.ref_image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_audios.ref_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "ref_video",
+          "shape": 7,
+          "type": "VIDEO",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": [
+            16
+          ]
+        },
+        {
+          "name": "last_frame",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "frames",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "Text To Video",
+        "A majestic sailboat sailing on a calm ocean at sunset, cinematic lighting, golden hour, realistic water reflections, 4k quality",
+        "720P",
+        "16:9",
+        5,
+        100,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "mode": "Text To Video",
+        "prompt": "A majestic sailboat sailing on a calm ocean at sunset, cinematic lighting, golden hour, realistic water reflections, 4k quality",
+        "quality": "720P",
+        "aspect_ratio": "16:9",
+        "duration": 5,
+        "seed": 100,
+        "control_after_generate": "fixed"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    }
+  ],
+  "links": [
+    [
+      2,
+      5,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      6,
+      0,
+      7,
+      0,
+      "VIDEO"
+    ],
+    [
+      16,
+      16,
+      0,
+      3,
+      0,
+      "VIDEO"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "1. Text to Video",
+      "bounding": [
+        30,
+        10,
+        1226.1854078146066,
+        635.9510320549906
+      ],
+      "color": "#3f789e",
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "2. Image to Video",
+      "bounding": [
+        32.15835681020112,
+        661.2235200787694,
+        1222.3383627416188,
+        809.0435815070133
+      ],
+      "color": "#a17a3a",
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "ds": {
+      "scale": 0.5937850254338535,
+      "offset": [
+        493.10919906985197,
+        421.7440520506009
+      ]
+    },
+    "frontendVersion": "1.51.10",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4,
+  "seed_widgets": {
+    "6": 5,
+    "16": 5
+  }
+}

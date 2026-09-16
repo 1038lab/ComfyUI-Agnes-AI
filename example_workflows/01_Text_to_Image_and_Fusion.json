@@ -1,0 +1,400 @@
+{
+  "id": "de04a853-de5b-4f86-8c82-3f00ca87029f",
+  "revision": 0,
+  "last_node_id": 13,
+  "last_link_id": 14,
+  "nodes": [
+    {
+      "id": 4,
+      "type": "Note",
+      "pos": [
+        399.22195055212427,
+        1005.5879290749195
+      ],
+      "size": [
+        400,
+        120
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": "",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "### Agnes-AI: Multi-Image Fusion (No Prompt Required)\n1. Connect reference images to image_0 (and autogrow slots)\n2. Leave prompt empty to automatically blend them into a cohesive new scene!"
+      ],
+      "widgets_values_named": {
+        "text": "### Agnes-AI: Multi-Image Fusion (No Prompt Required)\n1. Connect reference images to image_0 (and autogrow slots)\n2. Leave prompt empty to automatically blend them into a cohesive new scene!"
+      },
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 5,
+      "type": "LoadImage",
+      "pos": [
+        56.366065252985486,
+        695.4153435479094
+      ],
+      "size": [
+        319.13157193361354,
+        567.4930414090109
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            12
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.35.0",
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "BonanzaGen-image-734d9d30-2364-4cc8-a6d8-226cf3e5a354-2.webp",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "BonanzaGen-image-734d9d30-2364-4cc8-a6d8-226cf3e5a354-2.webp",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 1,
+      "type": "Note",
+      "pos": [
+        50.000038161283136,
+        57.00253821379305
+      ],
+      "size": [
+        400,
+        120
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": "",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "### Agnes-AI: Text to Image\n1. Configure your API key in ComfyUI Settings (gear icon)\n2. Enter your prompt in Agnes-AI Image\n3. Queue Prompt to generate a free high-resolution image!"
+      ],
+      "widgets_values_named": {
+        "text": "### Agnes-AI: Text to Image\n1. Configure your API key in ComfyUI Settings (gear icon)\n2. Enter your prompt in Agnes-AI Image\n3. Queue Prompt to generate a free high-resolution image!"
+      },
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 3,
+      "type": "PreviewImage",
+      "pos": [
+        483.03380758334157,
+        53.19919891309675
+      ],
+      "size": [
+        682.1222637393662,
+        528.0893125520032
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.35.0",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 12,
+      "type": "AgnesImage",
+      "pos": [
+        395.46038471369235,
+        695.4153435479094
+      ],
+      "size": [
+        400,
+        260
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images.image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 12
+        },
+        {
+          "name": "images.image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "woamn with black dress",
+        "1K",
+        "auto",
+        926487543681631,
+        "randomize"
+      ],
+      "widgets_values_named": {
+        "prompt": "woamn with black dress",
+        "quality": "1K",
+        "aspect_ratio": "auto",
+        "seed": 926487543681631,
+        "control_after_generate": "randomize"
+      },
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 7,
+      "type": "PreviewImage",
+      "pos": [
+        819.0943194607067,
+        695.4153435479094
+      ],
+      "size": [
+        351.8000791045931,
+        579.1581350064153
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.35.0",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 13,
+      "type": "AgnesImage",
+      "pos": [
+        46.44975899307898,
+        230.26664081794786
+      ],
+      "size": [
+        406.1494375593286,
+        210.12129239908307
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images.image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "science fiction, massive spaceship, towering space station, red hull, intricate mechanical details, complex structure, lone figure, person looking up, small human scale, atmospheric haze, foggy environment, platform, cinematic lighting, epic scale, concept art, digital painting, highly detailed, realistic rendering,",
+        "1K",
+        "4:3",
+        1020834900161291,
+        "randomize"
+      ],
+      "widgets_values_named": {
+        "prompt": "science fiction, massive spaceship, towering space station, red hull, intricate mechanical details, complex structure, lone figure, person looking up, small human scale, atmospheric haze, foggy environment, platform, cinematic lighting, epic scale, concept art, digital painting, highly detailed, realistic rendering,",
+        "quality": "1K",
+        "aspect_ratio": "4:3",
+        "seed": 1020834900161291,
+        "control_after_generate": "randomize"
+      },
+      "color": "#323",
+      "bgcolor": "#535"
+    }
+  ],
+  "links": [
+    [
+      12,
+      5,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      13,
+      12,
+      0,
+      7,
+      0,
+      "IMAGE"
+    ],
+    [
+      14,
+      13,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "1. Text to Image (Agnes-Image-2.5-Flash)",
+      "bounding": [
+        32.00079607489527,
+        -21.011671338421817,
+        1152.6763706166414,
+        613.6294111476186
+      ],
+      "color": "#3f789e",
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "2. Multi-Image Fusion",
+      "bounding": [
+        30,
+        610,
+        1155.4378901498576,
+        681.8451376164144
+      ],
+      "color": "#b06634",
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "ds": {
+      "scale": 0.7997000000000015,
+      "offset": [
+        346.3432312614984,
+        105.89073140319334
+      ]
+    },
+    "frontendVersion": "1.51.10",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4,
+  "seed_widgets": {
+    "12": 3,
+    "13": 3
+  }
+}

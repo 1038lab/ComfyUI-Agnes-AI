@@ -1,0 +1,820 @@
+{
+  "id": "62fe3d2f-2adf-4fe0-964d-bc212ea1664c",
+  "revision": 0,
+  "last_node_id": 108,
+  "last_link_id": 139,
+  "nodes": [
+    {
+      "id": 107,
+      "type": "AgnesImage",
+      "pos": [
+        -705.8542621130309,
+        7868.017949348329
+      ],
+      "size": [
+        320.75,
+        264
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images.image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 133
+        },
+        {
+          "name": "images.image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 134
+        },
+        {
+          "name": "images.image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            132
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "Two girls posing on a bustling cyberpunk city street.",
+        "3K",
+        "2:3",
+        100,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "prompt": "Two girls posing on a bustling cyberpunk city street.",
+        "quality": "3K",
+        "aspect_ratio": "2:3",
+        "seed": 100,
+        "control_after_generate": "fixed"
+      },
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 93,
+      "type": "AILab_LoadImageSimple",
+      "pos": [
+        -1047.2840395612836,
+        7868.017949348329
+      ],
+      "size": [
+        320.0625,
+        648.9375
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            133
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        },
+        {
+          "name": "WIDTH",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "HEIGHT",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-rmbg",
+        "ver": "a1ca256ce5ef3d2d990935415bad76c4269aa80d",
+        "Node name for S&R": "AILab_LoadImageSimple",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "",
+        "117757924.jpg",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image_path_or_URL": "",
+        "image": "117757924.jpg",
+        "upload": "image"
+      },
+      "color": "#2e3e57",
+      "bgcolor": "#4b5b73"
+    },
+    {
+      "id": 91,
+      "type": "AILab_LoadImageSimple",
+      "pos": [
+        -1386.7068292162378,
+        7868.017949348329
+      ],
+      "size": [
+        318.0625,
+        652.9375
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            134
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        },
+        {
+          "name": "WIDTH",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "HEIGHT",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-rmbg",
+        "ver": "a1ca256ce5ef3d2d990935415bad76c4269aa80d",
+        "Node name for S&R": "AILab_LoadImageSimple",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "",
+        "BonanzaGen-image-02e45b4c-a231-48b4-b006-15ac693b3500-1.webp",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image_path_or_URL": "",
+        "image": "BonanzaGen-image-02e45b4c-a231-48b4-b006-15ac693b3500-1.webp",
+        "upload": "image"
+      },
+      "color": "#2e3e57",
+      "bgcolor": "#4b5b73"
+    },
+    {
+      "id": 89,
+      "type": "AILab_LoadImageSimple",
+      "pos": [
+        -2156.303712356466,
+        7877.306900271703
+      ],
+      "size": [
+        292.2811207852724,
+        647.9444023379765
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            118
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        },
+        {
+          "name": "WIDTH",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "HEIGHT",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-rmbg",
+        "ver": "a1ca256ce5ef3d2d990935415bad76c4269aa80d",
+        "Node name for S&R": "AILab_LoadImageSimple",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "",
+        "Man2.jpg",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image_path_or_URL": "",
+        "image": "Man2.jpg",
+        "upload": "image"
+      },
+      "color": "#2e3e57",
+      "bgcolor": "#4b5b73"
+    },
+    {
+      "id": 94,
+      "type": "AILab_LoadImageSimple",
+      "pos": [
+        -2151.283374629025,
+        9073.516944932146
+      ],
+      "size": [
+        593.1539523019967,
+        501.2035908602975
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            138
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        },
+        {
+          "name": "WIDTH",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "HEIGHT",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-rmbg",
+        "ver": "a1ca256ce5ef3d2d990935415bad76c4269aa80d",
+        "Node name for S&R": "AILab_LoadImageSimple",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "",
+        "14.webp",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image_path_or_URL": "",
+        "image": "14.webp",
+        "upload": "image"
+      },
+      "color": "#2e3e57",
+      "bgcolor": "#4b5b73"
+    },
+    {
+      "id": 70,
+      "type": "PreviewAny",
+      "pos": [
+        -1850.87552159515,
+        8146.684647242973
+      ],
+      "size": [
+        407.0625,
+        378.84375
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 119
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.0",
+        "Node name for S&R": "PreviewAny",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 104,
+      "type": "AgnesText",
+      "pos": [
+        -1851.547910562773,
+        7876.519727986622
+      ],
+      "size": [
+        400,
+        226
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 118
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            119
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesText",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "Image Edit Prompt",
+        "Image Detailed Description",
+        100,
+        "fixed",
+        ""
+      ],
+      "widgets_values_named": {
+        "preset": "Image Edit Prompt",
+        "prompt": "Image Detailed Description",
+        "seed": 100,
+        "control_after_generate": "fixed",
+        "system_prompt": ""
+      },
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 86,
+      "type": "PreviewImage",
+      "pos": [
+        -363.7392412146062,
+        7868.017949348329
+      ],
+      "size": [
+        358.0650485716096,
+        661.5435748965901
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 132
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.0",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 77,
+      "type": "SaveVideo",
+      "pos": [
+        -610.3019746444719,
+        8638.255117567645
+      ],
+      "size": [
+        597.2484929208817,
+        1159.775098526012
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 136
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.0",
+        "Node name for S&R": "SaveVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "video/ComfyUI",
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "video/ComfyUI",
+        "format": "auto",
+        "format.codec": "auto",
+        "codec": "auto"
+      }
+    },
+    {
+      "id": 87,
+      "type": "PreviewImage",
+      "pos": [
+        -1524.2494190187153,
+        8707.33277583282
+      ],
+      "size": [
+        880.4676107327277,
+        1098.009445018195
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 137
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.0",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 108,
+      "type": "AgnesVideo",
+      "pos": [
+        -2146.1692410932387,
+        8631.97957211631
+      ],
+      "size": [
+        590.0043851959565,
+        396.6607711907982
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "first_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 138
+        },
+        {
+          "name": "end_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_images.ref_image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_audios.ref_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "ref_video",
+          "shape": 7,
+          "type": "VIDEO",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": [
+            136
+          ]
+        },
+        {
+          "name": "last_frame",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "frames",
+          "type": "IMAGE",
+          "links": [
+            137
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "Reference (Images/Audio/Video)",
+        "A stylish male model walks confidently down a professional fashion runway on stage. He moves naturally with realistic body motion, subtle facial expressions, and smooth camera tracking. Near the end of the runway, he looks toward the camera and says clearly in English:“This video was created with ComfyUI and Agnes AI. What do you think?”\n\nCinematic fashion show lighting, realistic movement, natural lip sync, high-quality video, professional runway atmosphere.",
+        "720P",
+        "9:16",
+        8,
+        100,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "mode": "Reference (Images/Audio/Video)",
+        "prompt": "A stylish male model walks confidently down a professional fashion runway on stage. He moves naturally with realistic body motion, subtle facial expressions, and smooth camera tracking. Near the end of the runway, he looks toward the camera and says clearly in English:“This video was created with ComfyUI and Agnes AI. What do you think?”\n\nCinematic fashion show lighting, realistic movement, natural lip sync, high-quality video, professional runway atmosphere.",
+        "quality": "720P",
+        "aspect_ratio": "9:16",
+        "duration": 8,
+        "seed": 100,
+        "control_after_generate": "fixed"
+      },
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 88,
+      "type": "MarkdownNote",
+      "pos": [
+        -2869.7382942067247,
+        7844.372881146306
+      ],
+      "size": [
+        664.0625,
+        345.8125
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "# [ComfyUI Agnes-AI](https://github.com/1038lab/ComfyUI-Agnes-AI)\n\nComfyUI custom nodes for the **Agnes AI API** — a free, cloud-based AI generation platform. Generate images, create videos, enhance prompts, and analyze visuals — all without a local GPU. Zero extra Python dependencies.\n\n> **Get a free API key:** [platform.agnes-ai.com](https://platform.agnes-ai.com)\n\n## Why Agnes AI?\n\n| | |\n|---|---|\n| **Free** | No token billing, no credit system — get a key and use it |\n| **No GPU needed** | All computation runs on Agnes servers, your ComfyUI stays lightweight |\n| **One API, many models** | Image gen, video gen, chat, vision — all through a single key |\n| **Multi-image compose** | Up to 4 reference images for img2img composition |\n| **Video generation** | Text-to-video, image-to-video, and keyframe interpolation |\n| **Smart text styles** | Prompt enhancement, translation, art style extraction, image description |\n"
+      ],
+      "widgets_values_named": {
+        "text": "# [ComfyUI Agnes-AI](https://github.com/1038lab/ComfyUI-Agnes-AI)\n\nComfyUI custom nodes for the **Agnes AI API** — a free, cloud-based AI generation platform. Generate images, create videos, enhance prompts, and analyze visuals — all without a local GPU. Zero extra Python dependencies.\n\n> **Get a free API key:** [platform.agnes-ai.com](https://platform.agnes-ai.com)\n\n## Why Agnes AI?\n\n| | |\n|---|---|\n| **Free** | No token billing, no credit system — get a key and use it |\n| **No GPU needed** | All computation runs on Agnes servers, your ComfyUI stays lightweight |\n| **One API, many models** | Image gen, video gen, chat, vision — all through a single key |\n| **Multi-image compose** | Up to 4 reference images for img2img composition |\n| **Video generation** | Text-to-video, image-to-video, and keyframe interpolation |\n| **Smart text styles** | Prompt enhancement, translation, art style extraction, image description |\n"
+      },
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      118,
+      89,
+      0,
+      104,
+      0,
+      "IMAGE"
+    ],
+    [
+      119,
+      104,
+      0,
+      70,
+      0,
+      "STRING"
+    ],
+    [
+      132,
+      107,
+      0,
+      86,
+      0,
+      "IMAGE"
+    ],
+    [
+      133,
+      93,
+      0,
+      107,
+      0,
+      "IMAGE"
+    ],
+    [
+      134,
+      91,
+      0,
+      107,
+      1,
+      "IMAGE"
+    ],
+    [
+      136,
+      108,
+      0,
+      77,
+      0,
+      "VIDEO"
+    ],
+    [
+      137,
+      108,
+      2,
+      87,
+      0,
+      "IMAGE"
+    ],
+    [
+      138,
+      94,
+      0,
+      108,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 2,
+      "title": "Agnes-AI Text",
+      "bounding": [
+        -2166.4231969800176,
+        7806.519727986622,
+        734.006088510308,
+        732.6360140153565
+      ],
+      "color": "#3f789e",
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "Agnes-AI Image",
+      "bounding": [
+        -1414.6794615991803,
+        7801.329352880506,
+        1418.3972440893915,
+        741.178357037863
+      ],
+      "color": "#3f789e",
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "Agnes-AI Video",
+      "bounding": [
+        -2164.7247809610326,
+        8552.804241273116,
+        2167.7961980344894,
+        1269.925480544318
+      ],
+      "color": "#3f789e",
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ue_links": [],
+    "ds": {
+      "scale": 0.701150723086628,
+      "offset": [
+        3310.092430447036,
+        -7558.182296436486
+      ]
+    },
+    "links_added_by_ue": [],
+    "frontendVersion": "1.51.10",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4,
+  "seed_widgets": {
+    "104": 2,
+    "107": 3,
+    "108": 5
+  }
+}

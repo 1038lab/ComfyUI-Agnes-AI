@@ -1,0 +1,486 @@
+{
+  "id": "3c92d0c8-8596-465a-b531-34e3aa8c1c35",
+  "revision": 0,
+  "last_node_id": 17,
+  "last_link_id": 19,
+  "nodes": [
+    {
+      "id": 4,
+      "type": "PreviewImage",
+      "pos": [
+        878.0991533768077,
+        88.258096519206
+      ],
+      "size": [
+        389.81822620738626,
+        548.3635919744318
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.35.0",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 17,
+      "type": "iToolsPreviewText",
+      "pos": [
+        58.57062733730902,
+        410.9102725823425
+      ],
+      "size": [
+        429.90544988458805,
+        222.29824662642034
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "shape": 6,
+          "type": "STRING",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-itools",
+        "ver": "ebe75a158b8c19d69a5e4e24c1f25085babda5b4",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "iToolsPreviewText"
+      },
+      "widgets_values": [
+        "a melancholic cyberpunk girl with messy long white hair cascading over her face, wearing an oversized vintage bomber jacket with faded patches, leaning casually against a sleek old-school cybernetically modified sports car in a rain-soaked neon-drenched alley, moody blue and pink lighting reflecting off wet surfaces, close-up composition with shallow depth of field emphasizing her tired expression, cinematic atmosphere with glowing holographic advertisements in the background, detailed textures on the jacket fabric and car chrome, melancholic and atmospheric mood, photorealistic style with 8k resolution"
+      ],
+      "widgets_values_named": {
+        "text2": "a melancholic cyberpunk girl with messy long white hair cascading over her face, wearing an oversized vintage bomber jacket with faded patches, leaning casually against a sleek old-school cybernetically modified sports car in a rain-soaked neon-drenched alley, moody blue and pink lighting reflecting off wet surfaces, close-up composition with shallow depth of field emphasizing her tired expression, cinematic atmosphere with glowing holographic advertisements in the background, detailed textures on the jacket fabric and car chrome, melancholic and atmospheric mood, photorealistic style with 8k resolution"
+      }
+    },
+    {
+      "id": 2,
+      "type": "AgnesText",
+      "pos": [
+        55.55157371902962,
+        80.2580798732543
+      ],
+      "size": [
+        421.9589159402535,
+        280.06278633704943
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesText",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "Prompt Enhance",
+        "melancholic cyberpunk girl, messy long white hair, oversized vintage bomber jacket, leaning against an old-school cybernetically modified sports car",
+        1,
+        "fixed",
+        ""
+      ],
+      "widgets_values_named": {
+        "preset": "Prompt Enhance",
+        "prompt": "melancholic cyberpunk girl, messy long white hair, oversized vintage bomber jacket, leaning against an old-school cybernetically modified sports car",
+        "seed": 1,
+        "fixed": "fixed",
+        "system_prompt": ""
+      },
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 16,
+      "type": "iToolsPreviewText",
+      "pos": [
+        821.8446346075588,
+        752.2008027781391
+      ],
+      "size": [
+        441.45442237538794,
+        286.6775437031895
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-itools",
+        "ver": "ebe75a158b8c19d69a5e4e24c1f25085babda5b4",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "iToolsPreviewText"
+      },
+      "widgets_values": [
+        "A cinematic, medium-shot portrait of a young woman standing in a rain-soaked urban alleyway at night, leaning casually against the hood of a vintage metallic teal sedan. The woman has long, wet, platinum blonde hair that is styled messily with loose strands sticking to her face. She has a pale complexion and a melancholic, serious expression, looking downward with half-lidded eyes. She is wearing a heavily distressed, olive-green flight bomber jacket featuring tattered, ripped fabric that reveals white inner lining, along with frayed embroidered patch pockets on the chest and sleeve. Underneath the jacket, she wears a dark top and loose, dark green cargo pants with a visible waist buckle and hanging keychain accessories. The background is filled with glowing neon signage, predominantly in shades of hot pink, magenta, and cyan blue, including vertical signs with Asian characters and a sign depicting an illustration of a cartoon character. The environment is gritty and atmospheric, with visible rain streaks and water droplets on the car's windshield and the wet asphalt ground. The lighting is high-contrast, utilizing strong rim lighting from the neon signs to highlight the subject's hair and shoulders against the darker, cooler-toned shadows of the street. The image features a shallow depth of field, blurring the background neon signs into soft bokeh, and exhibits a gritty, cyberpunk aesthetic with high textural detail on the fabric and wet surfaces."
+      ],
+      "widgets_values_named": {
+        "text2": "A cinematic, medium-shot portrait of a young woman standing in a rain-soaked urban alleyway at night, leaning casually against the hood of a vintage metallic teal sedan. The woman has long, wet, platinum blonde hair that is styled messily with loose strands sticking to her face. She has a pale complexion and a melancholic, serious expression, looking downward with half-lidded eyes. She is wearing a heavily distressed, olive-green flight bomber jacket featuring tattered, ripped fabric that reveals white inner lining, along with frayed embroidered patch pockets on the chest and sleeve. Underneath the jacket, she wears a dark top and loose, dark green cargo pants with a visible waist buckle and hanging keychain accessories. The background is filled with glowing neon signage, predominantly in shades of hot pink, magenta, and cyan blue, including vertical signs with Asian characters and a sign depicting an illustration of a cartoon character. The environment is gritty and atmospheric, with visible rain streaks and water droplets on the car's windshield and the wet asphalt ground. The lighting is high-contrast, utilizing strong rim lighting from the neon signs to highlight the subject's hair and shoulders against the darker, cooler-toned shadows of the street. The image features a shallow depth of field, blurring the background neon signs into soft bokeh, and exhibits a gritty, cyberpunk aesthetic with high textural detail on the fabric and wet surfaces."
+      }
+    },
+    {
+      "id": 7,
+      "type": "AgnesText",
+      "pos": [
+        420.92103115008314,
+        757.6544037010311
+      ],
+      "size": [
+        380.8815923618288,
+        214
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 19
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesText",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "Image Detailed Description",
+        "",
+        1,
+        "fixed",
+        ""
+      ],
+      "widgets_values_named": {
+        "preset": "Image Detailed Description",
+        "prompt": "",
+        "seed": 1,
+        "fixed": "fixed",
+        "system_prompt": ""
+      },
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 5,
+      "type": "Note",
+      "pos": [
+        55.83741128597535,
+        743.7416444782966
+      ],
+      "size": [
+        333.8479852294921,
+        238.41597045898448
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": "",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "### Agnes-AI: Image Reverse Prompt / Visual Description\n1. Load any image with LoadImage\n2. Connect to Agnes-AI Text with preset 'Image Detailed Description'\n3. Outputs an AI-ready detailed prompt describing the image in high fidelity!"
+      ],
+      "widgets_values_named": {
+        "text": "### Agnes-AI: Image Reverse Prompt / Visual Description\n1. Load any image with LoadImage\n2. Connect to Agnes-AI Text with preset 'Image Detailed Description'\n3. Outputs an AI-ready detailed prompt describing the image in high fidelity!"
+      },
+      "color": "#332",
+      "bgcolor": "#553"
+    },
+    {
+      "id": 1,
+      "type": "Note",
+      "pos": [
+        506.05376596694043,
+        91.64354551601
+      ],
+      "size": [
+        355.77314930308967,
+        105.18979969371452
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": "",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "### Agnes-AI: Prompt Enhance\n1. Powered by agnes-3.0-flash with 512K context\n2. Enter a simple concept (e.g. 'cyberpunk cat')\n3. Connects directly to Agnes-AI Image for enriched visual results!"
+      ],
+      "widgets_values_named": {
+        "text": "### Agnes-AI: Prompt Enhance\n1. Powered by agnes-3.0-flash with 512K context\n2. Enter a simple concept (e.g. 'cyberpunk cat')\n3. Connects directly to Agnes-AI Image for enriched visual results!"
+      },
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 3,
+      "type": "AgnesImage",
+      "pos": [
+        503.5088978366444,
+        253.24142275481756
+      ],
+      "size": [
+        360.87267622055606,
+        184
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images.image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-Agnes-AI",
+        "ver": "a1721920ec3b3f7d9b30143593aaaba88c20cc2a",
+        "Node name for S&R": "AgnesImage",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "prompt": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "",
+        "1K",
+        "2:3",
+        1,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "prompt": "",
+        "quality": "1K",
+        "aspect_ratio": "2:3",
+        "seed": 1,
+        "control_after_generate": "fixed"
+      },
+      "color": "#323",
+      "bgcolor": "#535"
+    }
+  ],
+  "links": [
+    [
+      2,
+      3,
+      0,
+      4,
+      0,
+      "IMAGE"
+    ],
+    [
+      16,
+      7,
+      0,
+      16,
+      0,
+      "STRING"
+    ],
+    [
+      17,
+      2,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      18,
+      17,
+      0,
+      3,
+      1,
+      "STRING"
+    ],
+    [
+      19,
+      4,
+      0,
+      7,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "1. Prompt Enhancement to Image",
+      "bounding": [
+        30,
+        10,
+        1252.1818403764205,
+        640
+      ],
+      "color": "#3f789e",
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "2. Image Reverse Prompt & Description",
+      "bounding": [
+        35.51086555509596,
+        666.0437427317261,
+        1248.4879491279537,
+        395.2175767227045
+      ],
+      "color": "#53784f",
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "ds": {
+      "scale": 0.8264462809917354,
+      "offset": [
+        950.5823834557325,
+        169.62987322100264
+      ]
+    },
+    "frontendVersion": "1.51.10",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4,
+  "seed_widgets": {
+    "2": 2,
+    "3": 3,
+    "7": 2
+  }
+}
