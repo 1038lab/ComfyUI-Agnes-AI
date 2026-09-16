@@ -35,9 +35,22 @@ async function saveConfig(payload) {
 
 // ── Model options ───────────────────────────────────────────────────
 
-const TEXT_MODELS = ["agnes-2.5-flash", "agnes-2.5-pro-alpha", "agnes-2.0-flash", "agnes-1.5-flash"];
-const IMAGE_MODELS = ["agnes-image-2.1-flash", "agnes-image-2.0-flash"];
-const VIDEO_MODELS = ["agnes-video-v2.0"];
+const TEXT_MODELS = [
+    "agnes-3.0-flash",
+    "agnes-2.5-pro",
+    "agnes-2.5-pro-beta",
+    "agnes-2.5-flash",
+];
+const IMAGE_MODELS = [
+    "agnes-image-2.5-flash",
+    "agnes-image-2.1-flash",
+    "agnes-image-2.0-flash",
+];
+const VIDEO_MODELS = [
+    "agnes-video-2.5-flash",
+    "agnes-video-2.5",
+    "agnes-video-v2.0",
+];
 
 // ── Settings ────────────────────────────────────────────────────────
 // NOTE: ComfyUI sorts sections alphabetically by category[1],
@@ -49,36 +62,62 @@ const agnesSettings = [
     // ══════════════════════════════════════════════════════════════════
     // Section 1: API Key  (category[1] = "API Key" → sorts first: A)
     // ══════════════════════════════════════════════════════════════════
-    // Only one custom item — renders input + subtitle + link
+    // Custom item — renders key list with delete buttons + add key input + failover subtitle + link
     {
-        id: "Agnes-AI.apiKey",
+        id: "Agnes-AI.apiKeys",
         name: "API Key",
         category: ["⚡Agnes-AI", "API Key", "API Key"],
         type: () => {
             const container = document.createElement("div");
+            container.style.cssText = "display:flex; flex-direction:column; gap:8px; max-width:380px; width:100%;";
 
-            // Password input
+            // Existing keys list container
+            const listContainer = document.createElement("div");
+            listContainer.style.cssText = "display:flex; flex-direction:column; gap:6px;";
+
+            // Add new key input row
+            const addRow = document.createElement("div");
+            addRow.style.cssText = "display:flex; gap:8px; align-items:center;";
+
             const input = document.createElement("input");
             input.type = "password";
-            input.placeholder = "sk-...";
+            input.autocomplete = "new-password";
+            input.setAttribute("data-lpignore", "true");
+            input.placeholder = "Paste new API key (sk-...)";
             input.style.cssText = [
-                "width: 100%",
-                "max-width: 340px",
+                "flex: 1",
                 "padding: 6px 10px",
                 "background: var(--comfy-input-bg, #222)",
                 "border: 1px solid var(--border-color, #444)",
                 "border-radius: 6px",
                 "color: var(--input-text, #ddd)",
-                "font-size: 14px",
+                "font-size: 13px",
                 "outline: none",
             ].join(";");
 
-            // Bottom row: small subtitle (left) + Get API link (right)
+            const addBtn = document.createElement("button");
+            addBtn.textContent = "+ Add";
+            addBtn.style.cssText = [
+                "padding: 6px 14px",
+                "background: var(--comfy-primary, #6c5ce7)",
+                "color: #fff",
+                "border: none",
+                "border-radius: 6px",
+                "cursor: pointer",
+                "font-size: 13px",
+                "font-weight: 500",
+                "white-space: nowrap",
+            ].join(";");
+
+            addRow.appendChild(input);
+            addRow.appendChild(addBtn);
+
+            // Bottom row: subtitle + Get API link
             const bottomRow = document.createElement("div");
-            bottomRow.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-top:6px;";
+            bottomRow.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-top:2px;";
 
             const subtitle = document.createElement("span");
-            subtitle.textContent = "Supports multiple API keys for load balancing.";
+            subtitle.textContent = "Supports multiple backup keys for automatic failover.";
             subtitle.style.cssText = "font-size:11px; color:var(--p-text-muted-color, #888);";
 
             const link = document.createElement("a");
@@ -89,26 +128,113 @@ const agnesSettings = [
 
             bottomRow.appendChild(subtitle);
             bottomRow.appendChild(link);
-            container.appendChild(input);
+
+            container.appendChild(listContainer);
+            container.appendChild(addRow);
             container.appendChild(bottomRow);
 
-            // Load current API key (masked) into input
-            fetch("/agnes/get_config")
-                .then((r) => r.json())
-                .then((config) => {
-                    if (config.api_key_masked) {
-                        input.value = config.api_key_masked;
-                    }
-                })
-                .catch(() => { });
+            const renderKeys = (keys) => {
+                listContainer.innerHTML = "";
+                if (!keys || keys.length === 0) {
+                    const emptyTip = document.createElement("div");
+                    emptyTip.textContent = "No API key configured yet.";
+                    emptyTip.style.cssText = "font-size:12px; color:var(--p-text-muted-color, #777); padding:4px 0;";
+                    listContainer.appendChild(emptyTip);
+                    return;
+                }
 
-            // Save on change
-            input.addEventListener("change", () => {
-                const value = input.value.trim();
-                if (!value || value.includes("****")) return;
-                saveConfig({ api_key: value });
+                keys.forEach((maskedKey, idx) => {
+                    const item = document.createElement("div");
+                    item.style.cssText = [
+                        "display: flex",
+                        "align-items: center",
+                        "justify-content: space-between",
+                        "padding: 5px 10px",
+                        "background: var(--comfy-menu-bg, #1e1e24)",
+                        "border: 1px solid var(--border-color, #3a3a42)",
+                        "border-radius: 6px",
+                        "font-family: monospace",
+                        "font-size: 12px",
+                        "color: var(--input-text, #ccc)",
+                    ].join(";");
+
+                    const leftSpan = document.createElement("span");
+                    leftSpan.style.cssText = "display:flex; align-items:center; gap:8px;";
+
+                    const badge = document.createElement("span");
+                    badge.textContent = `#${idx + 1}`;
+                    badge.style.cssText = "color:var(--comfy-primary, #6c5ce7); font-weight:bold; font-size:11px;";
+
+                    const keyText = document.createElement("span");
+                    keyText.textContent = maskedKey;
+
+                    leftSpan.appendChild(badge);
+                    leftSpan.appendChild(keyText);
+
+                    const delBtn = document.createElement("button");
+                    delBtn.innerHTML = "&times;";
+                    delBtn.title = "Delete this key";
+                    delBtn.style.cssText = [
+                        "background: transparent",
+                        "border: none",
+                        "color: var(--p-text-muted-color, #888)",
+                        "font-size: 16px",
+                        "cursor: pointer",
+                        "padding: 0 4px",
+                        "line-height: 1",
+                        "border-radius: 4px",
+                    ].join(";");
+                    delBtn.addEventListener("mouseenter", () => {
+                        delBtn.style.color = "#ff4d4f";
+                        delBtn.style.background = "rgba(255, 77, 79, 0.15)";
+                    });
+                    delBtn.addEventListener("mouseleave", () => {
+                        delBtn.style.color = "var(--p-text-muted-color, #888)";
+                        delBtn.style.background = "transparent";
+                    });
+                    delBtn.addEventListener("click", async (e) => {
+                        e.preventDefault();
+                        await saveConfig({ delete_index: idx });
+                        loadAndRender();
+                        showToast(`API Key #${idx + 1} removed`);
+                    });
+
+                    item.appendChild(leftSpan);
+                    item.appendChild(delBtn);
+                    listContainer.appendChild(item);
+                });
+            };
+
+            const loadAndRender = () => {
+                fetch("/agnes/get_config")
+                    .then((r) => r.json())
+                    .then((config) => {
+                        renderKeys(config.api_keys || []);
+                    })
+                    .catch(() => {});
+            };
+
+            const doAdd = async () => {
+                const val = input.value.trim();
+                if (!val) return;
+                await saveConfig({ add_key: val });
+                input.value = "";
+                loadAndRender();
+                showToast("API Key added");
+            };
+
+            addBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                doAdd();
+            });
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    doAdd();
+                }
             });
 
+            loadAndRender();
             return container;
         },
     },
@@ -122,7 +248,7 @@ const agnesSettings = [
         id: "Agnes-AI.videoModel",
         name: "Video Model",
         type: "combo",
-        defaultValue: "agnes-video-v2.0",
+        defaultValue: VIDEO_MODELS[0],
         options: VIDEO_MODELS,
         category: ["⚡Agnes-AI", "Models", "Video Model"],
         onChange: async (value) => {
@@ -134,7 +260,7 @@ const agnesSettings = [
         id: "Agnes-AI.imageModel",
         name: "Image Model",
         type: "combo",
-        defaultValue: "agnes-image-2.1-flash",
+        defaultValue: IMAGE_MODELS[0],
         options: IMAGE_MODELS,
         category: ["⚡Agnes-AI", "Models", "Image Model"],
         onChange: async (value) => {
@@ -146,7 +272,7 @@ const agnesSettings = [
         id: "Agnes-AI.textModel",
         name: "Text Model",
         type: "combo",
-        defaultValue: "agnes-2.5-flash",
+        defaultValue: TEXT_MODELS[0],
         options: TEXT_MODELS,
         category: ["⚡Agnes-AI", "Models", "Text Model"],
         onChange: async (value) => {
@@ -197,15 +323,5 @@ const agnesSettings = [
 app.registerExtension({
     name: "Agnes-AI.Settings",
     settings: agnesSettings,
-    setup() {
-        // Legacy bridge for older ComfyUI builds
-        if (app.ui?.settings?.addSetting) {
-            agnesSettings.forEach((setting) => {
-                try {
-                    app.ui.settings.addSetting(setting);
-                } catch (err) { }
-            });
-        }
-        console.info("[Agnes-AI] Settings registered");
-    },
 });
+
