@@ -1,0 +1,8 @@
+{
+  "models": {
+    "video": "agnes-video-2.5-flash",
+    "image": "agnes-image-2.5-flash",
+    "text": "agnes-3.0-flash"
+  },
+  "api_key": ""
+}

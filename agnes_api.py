@@ -1,142 +1,288 @@
-import base64, json, os, tempfile, time
+import base64, json, os, random, ssl, tempfile, threading, time, uuid
 import urllib.error, urllib.request
 from io import BytesIO
 from pathlib import Path
+from PIL import Image
+
+def _get_ssl_ctx():
+    if os.environ.get("AGNES_SSL_VERIFY", "0") == "1":
+        return None
+    try:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    except Exception:
+        return None
+
+_SSL_CTX = _get_ssl_ctx()
 
 API_BASE = "https://apihub.agnes-ai.com/v1"
 POLL_BASE = "https://apihub.agnes-ai.com"
 PLUGIN_DIR = Path(__file__).parent
 CONFIG_FILE = PLUGIN_DIR / "agnes_config.json"
+PRESETS_DIR = PLUGIN_DIR / "presets"
+STYLES_FILE = PRESETS_DIR / "styles.json"
 
-QUALITY_IMAGE = {"1K": 1024, "2K": 2048, "4K": 4096}
-QUALITY_VIDEO = {"480p": 480, "720p": 720, "1080p": 1080}
+def _get_temp_dir() -> str:
+    try:
+        from folder_paths import get_temp_directory
+        return get_temp_directory()
+    except ImportError:
+        return tempfile.gettempdir()
+
+QUALITY_IMAGE = {"1K": 1024, "2K": 2048, "3K": 3072, "4K": 4096}
 ASPECT_RATIOS = [
     "auto", "1:1", "2:3", "3:4", "4:5", "9:16", "9:21",
     "3:2", "4:3", "5:4", "16:9", "21:9",
 ]
+VIDEO_ASPECT_RATIOS = ["auto", "16:9", "9:16", "1:1", "4:3", "3:4", "21:9"]
 
-TEXT_MODELS = ["agnes-2.5-flash", "agnes-2.5-pro-alpha", "agnes-2.0-flash", "agnes-1.5-flash"]
-IMAGE_MODELS = ["agnes-image-2.1-flash", "agnes-image-2.0-flash"]
-VIDEO_MODELS = ["agnes-video-v2.0"]
+TEXT_MODELS = [
+    "agnes-3.0-flash",
+    "agnes-2.5-pro",
+    "agnes-2.5-pro-beta",
+    "agnes-2.5-flash",
+]
+IMAGE_MODELS = [
+    "agnes-image-2.5-flash",
+    "agnes-image-2.1-flash",
+    "agnes-image-2.0-flash",
+]
+VIDEO_MODELS = [
+    "agnes-video-2.5-flash",
+    "agnes-video-2.5",
+    "agnes-video-v2.0",
+]
 
-DEFAULT_STYLES = {
-    "Prompt Enhance": {
-        "system_prompt": (
-            "You are an expert prompt engineer for AI image generation. Expand and enrich "
-            "the given prompt with vivid visual context: subject details, lighting, color palette, "
-            "composition, mood, camera angle, and style. Output ONLY the expanded prompt text. "
-            "Do NOT include any title, prefix, preamble, or labels such as 'Prompt:' or '**Prompt:**'."
-        ),
-        "requires_image": False,
-    },
-    "Translate to English": {
-        "system_prompt": (
-            "Translate the following prompt to English. Preserve all visual details, "
-            "style, lighting, composition, and quality terms. Return ONLY the translation."
-        ),
-        "requires_image": False,
-    },
-    "Extract Art Style from Image": {
-        "system_prompt": (
-            "Analyze the artistic style of this image. Identify the art movement, technique, "
-            "color palette, brushwork, lighting approach, and composition style. "
-            "Output ONLY a prompt that captures this artistic style for AI image generation. "
-            "Do not describe the image content or subject matter."
-        ),
-        "requires_image": True,
-    },
-    "Image Detailed Description": {
-        "system_prompt": (
-            "You are an expert at analyzing images and writing AI image generation prompts. "
-            "Describe this image in extreme detail: subject, composition, lighting, color palette, "
-            "style, mood, camera angle, depth of field, textures, and distinctive elements. "
-            "Output ONLY the prompt, no commentary."
-        ),
-        "requires_image": True,
-    },
-
-}
 
 # ── Config ───────────────────────────────────────────────────────────
 
-def _load_config() -> dict:
+def load_config() -> dict:
     try:
         if CONFIG_FILE.exists():
-            return json.loads(CONFIG_FILE.read_text())
-    except (OSError, json.JSONDecodeError):
-        pass
+            text = CONFIG_FILE.read_text(encoding="utf-8")
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                import re
+                clean = re.sub(r",\s*([\]}])", r"\1", text)
+                try:
+                    return json.loads(clean)
+                except json.JSONDecodeError:
+                    print(f"[Agnes-AI] WARNING: Config file {CONFIG_FILE} is corrupted. Using defaults.")
+    except OSError as e:
+        print(f"[Agnes-AI] WARNING: Cannot read config file: {e}")
     return {}
 
-def _save_config(cfg: dict):
+def save_config(cfg: dict) -> bool:
     try:
-        CONFIG_FILE.write_text(json.dumps(cfg, indent=2, ensure_ascii=False))
-    except OSError:
-        pass
+        tmp = CONFIG_FILE.with_suffix(".tmp")
+        tmp.write_text(json.dumps(cfg, indent=2, ensure_ascii=False), encoding="utf-8")
+        tmp.replace(CONFIG_FILE)
+        return True
+    except OSError as e:
+        print(f"[Agnes-AI] WARNING: Failed to save config: {e}")
+        return False
 
-def _parse_keys(raw: str) -> list[str]:
-    return [k.strip() for k in raw.replace(";", ",").replace("\n", ",").split(",") if k.strip()]
+_load_config = load_config
+_save_config = save_config
 
+MAX_IMAGE_SIZE = 50 * 1024 * 1024  # 50MB
 
-def get_api_key() -> str:
-    """Get API key from config file or environment variables."""
-    # Check environment variables first
+def download_image(url: str) -> Image.Image:
+    """Download image from URL using SSL context and return PIL Image."""
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    kwargs = {"timeout": 120}
+    if _SSL_CTX is not None:
+        kwargs["context"] = _SSL_CTX
+    with urllib.request.urlopen(req, **kwargs) as resp:
+        data = resp.read(MAX_IMAGE_SIZE + 1)
+        if len(data) > MAX_IMAGE_SIZE:
+            raise RuntimeError(f"Image exceeds {MAX_IMAGE_SIZE // (1024 * 1024)}MB limit")
+        return Image.open(BytesIO(data)).convert("RGB")
+
+def _parse_keys(raw) -> list[str]:
+    if isinstance(raw, list):
+        return [str(k).strip() for k in raw if str(k).strip()]
+    if isinstance(raw, str):
+        return [k.strip() for k in raw.replace(";", ",").replace("\n", ",").split(",") if k.strip()]
+    return []
+
+def get_all_keys() -> list[str]:
     env = os.environ.get("AGNES_API_KEY") or os.environ.get("AGNES_API_TOKEN") or ""
     if env:
-        keys = _parse_keys(env)
-        return keys[0]
+        return _parse_keys(env)
+    cfg = load_config()
+    return _parse_keys(cfg.get("api_keys") or cfg.get("api_key") or "")
 
-    # Read from config file (supports load balancing with multiple keys)
-    cfg = _load_config()
-    raw = cfg.get("api_key", "")
-    if not raw:
-        return ""
-    keys = _parse_keys(raw)
+_key_lock = threading.Lock()
+_KEY_COOLDOWNS: dict[str, float] = {}
+
+def mark_key_cooldown(key: str, seconds: int = 120):
+    if key:
+        with _key_lock:
+            _KEY_COOLDOWNS[key] = time.time() + seconds
+
+def get_api_key_info(node_name: str = "", exclude_key: str = "") -> tuple[str, str]:
+    keys = get_all_keys()
+    if not keys:
+        return "", ""
     if len(keys) == 1:
-        return keys[0]
-    # Round-robin load balancing
-    idx = cfg.get("api_key_index", 0)
-    key = keys[idx % len(keys)]
-    cfg["api_key_index"] = (idx + 1) % len(keys)
-    _save_config(cfg)
+        prefix = f"[{node_name}] " if node_name else ""
+        print(f"[Agnes-AI] {prefix}Using API 0")
+        return keys[0], "API 0"
+
+    now = time.time()
+    with _key_lock:
+        # 1. Collect healthy keys not in cooldown (excluding currently failing key if requested)
+        available = [
+            (i, k) for i, k in enumerate(keys)
+            if _KEY_COOLDOWNS.get(k, 0) <= now and k != exclude_key
+        ]
+        # 2. If no alternative candidate, retry other available keys regardless of exclude_key
+        if not available and exclude_key:
+            available = [
+                (i, k) for i, k in enumerate(keys)
+                if _KEY_COOLDOWNS.get(k, 0) <= now
+            ]
+        # 3. If all keys are in cooldown, fall back to all keys
+        if not available:
+            available = list(enumerate(keys))
+
+        # 4. Truly random selection among healthy keys: spreads load evenly, prevents API 0 from being a target
+        chosen_idx, chosen_key = random.choice(available)
+
+    label = f"API {chosen_idx} ({chosen_idx + 1}/{len(keys)})"
+    prefix = f"[{node_name}] " if node_name else ""
+    print(f"[Agnes-AI] {prefix}Using {label}")
+    return chosen_key, label
+
+def get_api_key(node_name: str = "") -> str:
+    key, _ = get_api_key_info(node_name=node_name)
     return key
 
 def get_model(model_type: str, widget_model: str = "") -> str:
     if widget_model.strip():
         return widget_model.strip()
+    if model_type == "chat":
+        model_type = "text"
     cfg = _load_config()
-    return cfg.get("models", {}).get(model_type, _default_model(model_type))
+    model = cfg.get("models", {}).get(model_type, "")
+    valid_map = {
+        "image": IMAGE_MODELS,
+        "video": VIDEO_MODELS,
+        "text": TEXT_MODELS,
+    }
+    valid = valid_map.get(model_type, [])
+    if model in valid:
+        return model
+    return _default_model(model_type)
 
 def _default_model(model_type: str) -> str:
-    return {
-        "image": "agnes-image-2.1-flash",
-        "video": "agnes-video-v2.0",
-        "chat": "agnes-2.5-flash",
-    }.get(model_type, "")
+    if model_type == "chat":
+        model_type = "text"
+    models = {
+        "image": IMAGE_MODELS,
+        "video": VIDEO_MODELS,
+        "text": TEXT_MODELS,
+    }.get(model_type, [])
+    return models[0] if models else ""
+
+_styles_cache = None
+_styles_mtime = 0
 
 def get_styles() -> dict:
+    global _styles_cache, _styles_mtime
+    try:
+        current_mtime = max(
+            STYLES_FILE.stat().st_mtime if STYLES_FILE.exists() else 0,
+            CONFIG_FILE.stat().st_mtime if CONFIG_FILE.exists() else 0,
+        )
+    except OSError:
+        current_mtime = 0
+
+    if _styles_cache is not None and current_mtime > 0 and current_mtime <= _styles_mtime:
+        return _styles_cache
+
+    styles = {}
+
+    # 1. Load primary presets from presets/styles.json
+    if STYLES_FILE.exists():
+        try:
+            text = STYLES_FILE.read_text(encoding="utf-8")
+            data = json.loads(text)
+            if isinstance(data, dict):
+                styles.update(data)
+        except Exception as e:
+            print(f"[Agnes-AI] Error loading {STYLES_FILE}: {e}")
+
+    # 2. Scan additional custom preset files in presets/ (.json and .md)
+    if PRESETS_DIR.exists():
+        for p in sorted(PRESETS_DIR.iterdir()):
+            if p.name == "styles.json" or p.name.startswith("."):
+                continue
+            if p.suffix.lower() == ".json":
+                try:
+                    data = json.loads(p.read_text(encoding="utf-8"))
+                    if isinstance(data, dict):
+                        if "system_prompt" in data:
+                            name = data.get("name", p.stem)
+                            styles[name] = data
+                        else:
+                            styles.update(data)
+                except Exception as e:
+                    print(f"[Agnes-AI] Error loading preset file {p.name}: {e}")
+            elif p.suffix.lower() == ".md":
+                try:
+                    content = p.read_text(encoding="utf-8").strip()
+                    if content:
+                        styles[p.stem] = {
+                            "system_prompt": content,
+                            "requires_image": False,
+                        }
+                except Exception as e:
+                    print(f"[Agnes-AI] Error loading markdown preset {p.name}: {e}")
+
+    # 3. Merge user custom overrides from agnes_config.json if present
     cfg = _load_config()
     saved = cfg.get("prompt_styles")
-    if saved is None:
-        return DEFAULT_STYLES
-    changed = False
-    for key in list(saved.keys()):
-        if key not in DEFAULT_STYLES:
-            del saved[key]
-            changed = True
-    for key, val in DEFAULT_STYLES.items():
-        if key not in saved:
-            saved[key] = val
-            changed = True
-    if changed:
-        cfg["prompt_styles"] = saved
-        _save_config(cfg)
-    return saved
+    if saved and isinstance(saved, dict):
+        styles.update(saved)
+
+    # 4. Minimal fallback safeguard if files are missing or empty
+    if not styles:
+        styles = {
+            "Prompt Enhance": {
+                "system_prompt": (
+                    "You are an expert prompt engineer for AI image generation. Expand and enrich "
+                    "the given prompt with vivid visual context: subject details, lighting, color palette, "
+                    "composition, mood, camera angle, and style. Output ONLY the expanded prompt text. "
+                    "Do NOT include any title, prefix, preamble, or labels such as 'Prompt:' or '**Prompt:**'."
+                ),
+                "requires_image": False,
+            }
+        }
+
+    _styles_cache = styles
+    _styles_mtime = current_mtime
+    return styles
 
 # ── Size helpers ─────────────────────────────────────────────────────
 
 def compute_size(quality: str, ratio: str, quality_map: dict) -> str:
-    base = quality_map[quality]
-    wr, hr = map(int, ratio.split(":"))
+    if quality not in quality_map:
+        quality = next(iter(quality_map)) if quality_map else "1K"
+    base = quality_map.get(quality, 1024)
+    parts = str(ratio).split(":")
+    if len(parts) != 2:
+        return f"{base}x{base}"
+    try:
+        wr, hr = int(parts[0]), int(parts[1])
+    except (ValueError, TypeError):
+        return f"{base}x{base}"
+    if wr <= 0 or hr <= 0:
+        return f"{base}x{base}"
     if wr >= hr:
         w, h = base * wr // hr, base
     else:
@@ -145,90 +291,150 @@ def compute_size(quality: str, ratio: str, quality_map: dict) -> str:
 
 def resolve_size(quality: str, ratio: str, quality_map: dict,
                  img_shape: tuple = None) -> str:
-    if ratio == "auto" and img_shape is not None:
-        _, h, w, _ = img_shape
-        base = quality_map[quality]
-        if w >= h:
-            out_w, out_h = base * w // h, base
-        else:
-            out_w, out_h = base, base * h // w
-        return f"{max(64, out_w // 8 * 8)}x{max(64, out_h // 8 * 8)}"
     if ratio == "auto":
-        ratio = "1:1"
+        ratio = f"{img_shape[2]}:{img_shape[1]}" if img_shape is not None else "1:1"
     return compute_size(quality, ratio, quality_map)
 
-# ── Video helpers ────────────────────────────────────────────────────
+def resolve_video_aspect_ratio(aspect_ratio: str, img_shape: tuple = None) -> str:
+    valid_ratios = ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"]
+    if aspect_ratio in valid_ratios:
+        return aspect_ratio
+    if aspect_ratio == "auto" and img_shape is not None:
+        _, h, w, _ = img_shape
+        ratio_val = w / max(1, h)
+        candidates = {
+            "21:9": 21 / 9,
+            "16:9": 16 / 9,
+            "4:3": 4 / 3,
+            "1:1": 1.0,
+            "3:4": 3 / 4,
+            "9:16": 9 / 16,
+        }
+        return min(candidates.keys(), key=lambda r: abs(candidates[r] - ratio_val))
+    return "16:9"
 
-def duration_to_num_frames(duration: float, fps: int) -> int:
-    target = duration * fps
-    n = max(1, round((target - 1) / 8))
-    return min(n * 8 + 1, 441)
 
-
-def extract_last_frame(video_path: str):
-    try:
-        import subprocess, tempfile
-        from PIL import Image
-        # Get total frame count
-        r = subprocess.run(
-            ["ffprobe", "-v", "error", "-select_streams", "v:0",
-             "-count_frames", "-show_entries", "stream=nb_read_frames",
-             "-of", "csv=p=0", video_path],
-            capture_output=True, text=True, timeout=30,
-        )
-        total = int(r.stdout.strip())
-        tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        tmp.close()
-        subprocess.run(
-            ["ffmpeg", "-y", "-i", video_path,
-             "-vf", f"select='eq(n,{total-1})'",
-             "-frames:v", "1", tmp.name],
-            capture_output=True, timeout=30,
-        )
-        img = Image.open(tmp.name).convert("RGB")
-        os.unlink(tmp.name)
-        return img
-    except Exception:
-        return None
+def extract_input_items(kwargs: dict, group_id: str, prefix: str) -> list:
+    """Extract dynamic/autogrow inputs from kwargs regardless of ComfyUI format (V1 or V3)."""
+    items = []
+    # 1. Check nested structure under group_id (V3 build_nested_inputs)
+    if group_id in kwargs and kwargs[group_id] is not None:
+        val = kwargs[group_id]
+        if isinstance(val, dict):
+            for k in sorted(val.keys()):
+                if val[k] is not None:
+                    items.append(val[k])
+        elif isinstance(val, (list, tuple)):
+            for item in val:
+                if item is not None:
+                    items.append(item)
+        else:
+            items.append(val)
+    # 2. Check flat or prefixed keys (V1, direct, or dot notation)
+    for k in sorted(kwargs.keys()):
+        if k == group_id:
+            continue
+        if k.startswith(prefix) or k.startswith(f"{group_id}.{prefix}"):
+            if kwargs[k] is not None:
+                items.append(kwargs[k])
+    return items
 
 # ── HTTP helpers ─────────────────────────────────────────────────────
 
-_RETRY_STATUSES = {429, 500, 502, 503, 504, 524}
-_MAX_RETRIES = 3
-_RETRY_BASE_DELAY = 3
+_ERR_HINTS = {
+    400: "Invalid request parameters or unsupported format.",
+    401: "Invalid or expired API key. Check ComfyUI Settings -> Agnes-AI.",
+    402: "Insufficient account balance or subscription quota.",
+    404: "Endpoint, model, or task not found.",
+    429: "API rate limit or quota exceeded.",
+}
+
+def _abort_execution(msg: str):
+    """Print preset error message and cleanly interrupt execution without Python traceback."""
+    print(f"[Agnes-AI] {msg}")
+    try:
+        import comfy.model_management
+        raise comfy.model_management.InterruptProcessingException()
+    except (ImportError, AttributeError):
+        raise RuntimeError(f"[Agnes-AI] {msg}") from None
 
 def _headers(key: str) -> dict:
     return {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
 
-def _req(method: str, url: str, headers: dict, data: bytes = None,
-         timeout: int = 120) -> dict:
-    last_err = None
-    for attempt in range(1, _MAX_RETRIES + 1):
+def _req(method: str, url: str, headers: dict, data: bytes = None, timeout: int = 120) -> dict:
+    keys = get_all_keys()
+    max_attempts = max(3, len(keys) * 2)
+
+    for attempt in range(max_attempts):
+        curr_key = headers.get("Authorization", "").replace("Bearer ", "").strip()
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
-            resp = urllib.request.urlopen(req, timeout=timeout)
+            kwargs = {"timeout": timeout}
+            if _SSL_CTX is not None:
+                kwargs["context"] = _SSL_CTX
+            resp = urllib.request.urlopen(req, **kwargs)
             return json.loads(resp.read())
         except urllib.error.HTTPError as e:
             body = e.read().decode()
-            if e.code in _RETRY_STATUSES and attempt < _MAX_RETRIES:
-                time.sleep(_RETRY_BASE_DELAY * (2 ** (attempt - 1)))
-                last_err = f"API error {e.code}: {body[:200]}"
+            detail = ""
+            try:
+                err_json = json.loads(body)
+                detail = err_json.get("detail") or err_json.get("message") or err_json.get("error", "")
+                if isinstance(detail, dict):
+                    detail = detail.get("message", str(detail))
+            except Exception:
+                detail = body[:150]
+
+            # If multiple keys exist, immediately failover on authorization, rate-limit, or server errors
+            if len(keys) > 1 and attempt < max_attempts - 1 and e.code in (401, 402, 429, 500, 502, 503, 504):
+                cooldown_sec = 180 if e.code in (401, 402) else (120 if e.code == 429 else 30)
+                mark_key_cooldown(curr_key, seconds=cooldown_sec)
+                next_key, next_label = get_api_key_info("Failover", exclude_key=curr_key)
+                if next_key and next_key != curr_key:
+                    headers["Authorization"] = f"Bearer {next_key}"
+                    print(f"[Agnes-AI] Error {e.code} on current key. Switching to {next_label}...")
+                    time.sleep(0.5)
+                    continue
+
+            if e.code in (502, 504) and attempt < max_attempts - 1:
+                backoff = min(2 ** attempt, 8)
+                print(f"[Agnes-AI] Server error ({e.code}). Retrying in {backoff}s (attempt {attempt + 1}/{max_attempts})...")
+                time.sleep(backoff)
                 continue
-            raise RuntimeError(f"API error {e.code}: {body[:500]}")
-        except (urllib.error.URLError, json.JSONDecodeError, TimeoutError) as e:
-            if attempt < _MAX_RETRIES:
-                time.sleep(_RETRY_BASE_DELAY * (2 ** (attempt - 1)))
-                last_err = str(e)
+
+            hint = _ERR_HINTS.get(e.code) or ("Server temporarily unavailable." if e.code >= 500 else f"HTTP error {e.code}.")
+            msg = f"{hint} ({detail})" if detail else hint
+            _abort_execution(f"Error {e.code}: {msg}")
+        except (urllib.error.URLError, TimeoutError) as e:
+            if len(keys) > 1 and attempt < max_attempts - 1:
+                mark_key_cooldown(curr_key, seconds=30)
+                next_key, next_label = get_api_key_info("Failover", exclude_key=curr_key)
+                if next_key and next_key != curr_key:
+                    headers["Authorization"] = f"Bearer {next_key}"
+                    print(f"[Agnes-AI] Network error on current key. Switching to {next_label}...")
+                    time.sleep(0.5)
+                    continue
+            if attempt < max_attempts - 1:
+                backoff = min(2 ** attempt, 8)
+                print(f"[Agnes-AI] Network error ({e}). Retrying in {backoff}s (attempt {attempt + 1}/{max_attempts})...")
+                time.sleep(backoff)
                 continue
-            raise RuntimeError(f"Request failed: {e}")
-    raise RuntimeError(str(last_err))
+            _abort_execution(f"Network error: {e}")
+        except json.JSONDecodeError as e:
+            _abort_execution(f"Invalid JSON response: {e}")
+
+    _abort_execution("All API key attempts failed.")
 
 # ── Image ────────────────────────────────────────────────────────────
 
 def generate_image(api_key: str, prompt: str, images_b64: list = None,
                    size: str = "1024x768",
-                   model: str = "agnes-image-2.1-flash") -> list[str]:
-    body = {"model": model, "prompt": prompt, "size": size}
+                   seed: int = None,
+                   model: str = "") -> list[str]:
+    selected_model = get_model("image", model)
+    body = {"model": selected_model, "prompt": prompt, "size": size}
+    if seed is not None and seed > 0:
+        body["seed"] = seed % 1000
     if images_b64:
         body["extra_body"] = {
             "image": images_b64,
@@ -244,13 +450,9 @@ def generate_image(api_key: str, prompt: str, images_b64: list = None,
         raise RuntimeError(f"Unexpected API response: {json.dumps(first)[:200]}")
     if first.get("b64_json"):
         raw = base64.b64decode(first["b64_json"])
-        try:
-            from folder_paths import get_temp_directory
-            tmpdir = get_temp_directory()
-        except ImportError:
-            tmpdir = tempfile.gettempdir()
+        tmpdir = _get_temp_dir()
         os.makedirs(tmpdir, exist_ok=True)
-        path = os.path.join(tmpdir, f"agnes_img_{int(time.time())}.png")
+        path = os.path.join(tmpdir, f"agnes_img_{uuid.uuid4().hex[:12]}.png")
         with open(path, "wb") as f:
             f.write(raw)
         return [path]
@@ -261,75 +463,198 @@ def generate_image(api_key: str, prompt: str, images_b64: list = None,
 
 # ── Video ────────────────────────────────────────────────────────────
 
-def create_video(api_key: str, prompt: str, mode: str = "text2video",
-                 image_b64: str = None, end_frame_b64: str = None,
-                 size: str = None, num_frames: int = 121,
-                 frame_rate: int = 24, seed: int = None,
-                 negative_prompt: str = None,
+_V2_DIMS = {
+    "16:9": {"480p": (848, 480), "720p": (1280, 720), "1080p": (1920, 1080)},
+    "9:16": {"480p": (480, 848), "720p": (720, 1280), "1080p": (1080, 1920)},
+    "1:1":  {"480p": (480, 480), "720p": (720, 720),  "1080p": (1080, 1080)},
+    "4:3":  {"480p": (640, 480), "720p": (960, 720),  "1080p": (1440, 1080)},
+    "3:4":  {"480p": (480, 640), "720p": (720, 960),  "1080p": (1080, 1440)},
+    "21:9": {"480p": (1120, 480), "720p": (1680, 720), "1080p": (2520, 1080)},
+}
+
+def create_video(api_key: str, prompt: str, mode: str = "text",
+                 first_frame_b64: str = None, end_frame_b64: str = None,
+                 images_b64: list = None, audios_b64: list = None,
+                 videos_payload: list = None,
+                 quality: str = "720P",
+                 aspect_ratio: str = "16:9", seconds: int = 5,
+                 seed: int = None, model: str = "",
                  output_dir: str = None) -> str:
-    body = {"model": "agnes-video-v2.0", "prompt": prompt,
-            "num_frames": num_frames, "frame_rate": frame_rate}
-    if negative_prompt:
-        body["negative_prompt"] = negative_prompt
-    if size:
-        parts = size.split("x")
-        if len(parts) == 2:
-            body["width"] = int(parts[0])
-            body["height"] = int(parts[1])
-    if seed is not None:
-        body["seed"] = seed
-    if mode == "img2video" and image_b64:
-        body["image"] = image_b64
-    elif mode == "keyframes":
-        imgs = []
-        if image_b64: imgs.append(image_b64)
-        if end_frame_b64: imgs.append(end_frame_b64)
-        body["extra_body"] = {"image": imgs, "mode": "keyframes"}
+    selected_model = get_model("video", model)
+    is_flash = "flash" in selected_model.lower()
+    p = (prompt or "").strip()
+    if not p:
+        if mode == "keyframe":
+            p = "Animate with natural, smooth cinematic motion"
+        elif mode == "reference":
+            p = "Generate a cinematic video based on the reference materials"
+        else:
+            p = "Cinematic video with natural movement and lighting"
+
+    if "v2.0" in selected_model:
+        num_frames = max(1, round(((int(seconds) * 24) - 1) / 8)) * 8 + 1
+        q_norm = str(quality).lower().strip()
+        if q_norm in ("1k", "2k"):
+            q_norm = "1080p"
+        if q_norm not in ("480p", "720p", "1080p"):
+            q_norm = "720p"
+        ratio_key = aspect_ratio if aspect_ratio in _V2_DIMS else "16:9"
+        w, h = _V2_DIMS[ratio_key][q_norm]
+        body = {
+            "model": selected_model,
+            "prompt": p,
+            "num_frames": num_frames,
+            "frame_rate": 24,
+            "width": w,
+            "height": h,
+        }
+        if seed is not None and seed > 0:
+            body["seed"] = seed % 2147483647
+        if mode == "keyframe":
+            if first_frame_b64 and end_frame_b64:
+                body["extra_body"] = {"image": [first_frame_b64, end_frame_b64], "mode": "keyframes"}
+            elif first_frame_b64:
+                body["image"] = first_frame_b64
+        elif mode == "reference":
+            if images_b64:
+                body["extra_body"] = {"image": images_b64, "mode": "keyframes"}
+    else:
+        sec_int = max(4, min(12, int(seconds)))
+        final_size = "720P"
+        if is_flash:
+            if str(quality).upper() != "720P":
+                print(f"[Agnes-AI] Official API constraint: Flash model only supports 720P. Auto-downgraded from '{quality}' to 720P to prevent HTTP 400 error.")
+            final_size = "720P"
+            if videos_payload:
+                print("[Agnes-AI] Official API constraint: Flash model does not support reference videos (videos is not supported). Reference video skipped to prevent HTTP 400. Switch to standard agnes-video-2.5 in Settings to use video reference.")
+                videos_payload = None
+        else:
+            final_size = str(quality).upper().strip()
+            if final_size == "480P":
+                print("[Agnes-AI] Note: agnes-video-2.5 standard model minimum resolution is 720P. Auto-adjusting to 720P.")
+                final_size = "720P"
+            elif final_size not in ("720P", "1080P", "1K", "2K"):
+                final_size = "720P"
+
+        body = {
+            "model": selected_model,
+            "prompt": p,
+            "mode": mode,
+            "seconds": str(sec_int),
+            "size": final_size,
+            "aspect_ratio": aspect_ratio,
+            "n": 1,
+        }
+        if seed is not None and seed > 0:
+            body["seed"] = seed % 2147483647
+
+        if mode == "keyframe":
+            if first_frame_b64:
+                body["first_frame"] = first_frame_b64
+            if end_frame_b64:
+                body["last_frame"] = end_frame_b64
+        elif mode == "reference":
+            if images_b64:
+                body["images"] = images_b64[:5]
+            if audios_b64:
+                body["audios"] = audios_b64[:3]
+            if videos_payload:
+                body["videos"] = videos_payload[:3]
 
     data = _req("POST", f"{API_BASE}/videos", _headers(api_key),
                 data=json.dumps(body).encode(), timeout=60)
     vid = data.get("video_id") or data.get("id") or ""
     if not vid:
-        raise RuntimeError(f"No video_id: {data}")
-    return _poll(api_key, vid, output_dir)
+        raise RuntimeError(f"[Agnes-AI] No video_id returned: {data}")
+    return _poll(api_key, vid, model_name=selected_model, output_dir=output_dir)
 
-def _poll(api_key: str, video_id: str, output_dir: str = None,
-          max_wait: int = 600) -> str:
-    url = f"{POLL_BASE}/agnesapi?video_id={video_id}&model_name=agnes-video-v2.0"
+def _poll(api_key: str, video_id: str, model_name: str = "",
+          output_dir: str = None, max_wait: int = 600) -> str:
+    target_model = model_name or _default_model("video")
+    url = f"{POLL_BASE}/agnesapi?video_id={video_id}&model_name={target_model}"
     hdrs = _headers(api_key)
     start = time.time()
+
+    pbar = None
+    try:
+        import comfy.utils
+        pbar = comfy.utils.ProgressBar(100)
+    except Exception:
+        pass
+
+    check_interrupt = None
+    try:
+        import comfy.model_management
+        check_interrupt = comfy.model_management.throw_exception_if_processing_interrupted
+    except Exception:
+        pass
+
     while time.time() - start < max_wait:
-        time.sleep(10)
+        if check_interrupt:
+            check_interrupt()
+        for _ in range(10):
+            time.sleep(1)
+            if check_interrupt:
+                check_interrupt()
         try:
-            data = _req("GET", url, hdrs, timeout=30)
-        except RuntimeError:
+            req = urllib.request.Request(url, headers=_headers(api_key))
+            kwargs = {"timeout": 30}
+            if _SSL_CTX is not None:
+                kwargs["context"] = _SSL_CTX
+            with urllib.request.urlopen(req, **kwargs) as resp:
+                data = json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            if e.code in (401, 403, 404):
+                _abort_execution(f"Video poll failed: HTTP {e.code} — {e.read().decode()[:200]}")
+            print(f"[Agnes-AI] Poll request failed (HTTP {e.code}), retrying...")
             continue
+        except (urllib.error.URLError, json.JSONDecodeError, TimeoutError) as e:
+            print(f"[Agnes-AI] Poll request failed ({e}), retrying...")
+            continue
+
+        progress = data.get("progress")
+        if progress is not None and pbar is not None:
+            pbar.update_absolute(min(100, max(0, int(progress))))
+
         st = data.get("status", data.get("state", ""))
         if st == "completed":
+            if pbar is not None:
+                pbar.update_absolute(100)
             vu = data.get("url") or data.get("video_url") or ""
+            if not vu:
+                meta = data.get("metadata", {})
+                if isinstance(meta, dict):
+                    vu = meta.get("url") or meta.get("video_url") or ""
             if not vu:
                 for item in data.get("data", []):
                     vu = item.get("url") or item.get("video_url") or ""
                     if vu: break
             if not vu:
-                raise RuntimeError(f"No video URL: {json.dumps(data)[:300]}")
+                _abort_execution(f"No video URL in completed response: {json.dumps(data)[:300]}")
             return _download(vu, output_dir)
         if st in ("failed", "error"):
-            raise RuntimeError(f"Video failed: {data.get('error', data.get('message', 'unknown'))}")
-    raise TimeoutError(f"Video timed out ({max_wait}s)")
+            err_msg = data.get("error", data.get("message", "unknown"))
+            if isinstance(err_msg, dict):
+                err_msg = err_msg.get("message", str(err_msg))
+            _abort_execution(f"Video generation failed: {err_msg}")
+
+    _abort_execution(f"Video generation timed out ({max_wait}s)")
 
 def _download(url: str, output_dir: str = None) -> str:
-    if output_dir is None:
-        try:
-            from folder_paths import get_temp_directory
-            output_dir = get_temp_directory()
-        except ImportError:
-            output_dir = tempfile.gettempdir()
-    d = output_dir
+    d = output_dir or _get_temp_dir()
     os.makedirs(d, exist_ok=True)
-    p = os.path.join(d, f"agnes_video_{int(time.time())}.mp4")
+    p = os.path.join(d, f"agnes_video_{uuid.uuid4().hex[:12]}.mp4")
     try:
-        urllib.request.urlretrieve(url, p)
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        kwargs = {"timeout": 120}
+        if _SSL_CTX is not None:
+            kwargs["context"] = _SSL_CTX
+        with urllib.request.urlopen(req, **kwargs) as resp, open(p, "wb") as f:
+            while True:
+                chunk = resp.read(8192)
+                if not chunk:
+                    break
+                f.write(chunk)
     except Exception as e:
         raise RuntimeError(f"Download failed: {e}")
     return p
@@ -337,13 +662,16 @@ def _download(url: str, output_dir: str = None) -> str:
 # ── Text ─────────────────────────────────────────────────────────────
 
 def chat(api_key: str, messages: list, temperature: float = 0.7,
-         max_tokens: int = 2048, model: str = "") -> str:
+         max_tokens: int = 2048, seed: int = None, model: str = "") -> str:
+    selected_model = get_model("text", model)
     body = {
-        "model": get_model("chat", model),
+        "model": selected_model,
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
+    if seed is not None and seed > 0:
+        body["seed"] = seed % 2147483647
     data = _req("POST", f"{API_BASE}/chat/completions", _headers(api_key),
                 data=json.dumps(body).encode(), timeout=120)
     try:
