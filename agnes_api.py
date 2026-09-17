@@ -5,8 +5,27 @@ from pathlib import Path
 from PIL import Image
 
 def _get_ssl_ctx():
-    if os.environ.get("AGNES_SSL_VERIFY", "0") == "1":
-        return None
+    if os.environ.get("AGNES_SSL_VERIFY", "").lower() in ("0", "false", "no"):
+        try:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            return ctx
+        except Exception:
+            return None
+
+    try:
+        import certifi
+        ca = certifi.where()
+        if ca and os.path.exists(ca):
+            return ssl.create_default_context(cafile=ca)
+    except Exception:
+        pass
+
+    try:
+        return ssl.create_default_context()
+    except Exception:
+        pass
     try:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
@@ -135,22 +154,18 @@ def get_api_key_info(node_name: str = "", exclude_key: str = "") -> tuple[str, s
 
     now = time.time()
     with _key_lock:
-        # 1. Collect healthy keys not in cooldown (excluding currently failing key if requested)
         available = [
             (i, k) for i, k in enumerate(keys)
             if _KEY_COOLDOWNS.get(k, 0) <= now and k != exclude_key
         ]
-        # 2. If no alternative candidate, retry other available keys regardless of exclude_key
         if not available and exclude_key:
             available = [
                 (i, k) for i, k in enumerate(keys)
                 if _KEY_COOLDOWNS.get(k, 0) <= now
             ]
-        # 3. If all keys are in cooldown, fall back to all keys
         if not available:
             available = list(enumerate(keys))
 
-        # 4. Truly random selection among healthy keys: spreads load evenly, prevents API 0 from being a target
         chosen_idx, chosen_key = random.choice(available)
 
     label = f"API {chosen_idx} ({chosen_idx + 1}/{len(keys)})"
@@ -207,7 +222,6 @@ def get_styles() -> dict:
 
     styles = {}
 
-    # 1. Load primary presets from presets/styles.json
     if STYLES_FILE.exists():
         try:
             text = STYLES_FILE.read_text(encoding="utf-8")
@@ -217,7 +231,6 @@ def get_styles() -> dict:
         except Exception as e:
             print(f"[Agnes-AI] Error loading {STYLES_FILE}: {e}")
 
-    # 2. Scan additional custom preset files in presets/ (.json and .md)
     if PRESETS_DIR.exists():
         for p in sorted(PRESETS_DIR.iterdir()):
             if p.name == "styles.json" or p.name.startswith("."):
@@ -244,13 +257,10 @@ def get_styles() -> dict:
                 except Exception as e:
                     print(f"[Agnes-AI] Error loading markdown preset {p.name}: {e}")
 
-    # 3. Merge user custom overrides from agnes_config.json if present
     cfg = _load_config()
     saved = cfg.get("prompt_styles")
     if saved and isinstance(saved, dict):
         styles.update(saved)
-
-    # 4. Minimal fallback safeguard if files are missing or empty
     if not styles:
         styles = {
             "Prompt Enhance": {
@@ -315,9 +325,7 @@ def resolve_video_aspect_ratio(aspect_ratio: str, img_shape: tuple = None) -> st
 
 
 def extract_input_items(kwargs: dict, group_id: str, prefix: str) -> list:
-    """Extract dynamic/autogrow inputs from kwargs regardless of ComfyUI format (V1 or V3)."""
     items = []
-    # 1. Check nested structure under group_id (V3 build_nested_inputs)
     if group_id in kwargs and kwargs[group_id] is not None:
         val = kwargs[group_id]
         if isinstance(val, dict):
@@ -330,7 +338,6 @@ def extract_input_items(kwargs: dict, group_id: str, prefix: str) -> list:
                     items.append(item)
         else:
             items.append(val)
-    # 2. Check flat or prefixed keys (V1, direct, or dot notation)
     for k in sorted(kwargs.keys()):
         if k == group_id:
             continue
@@ -385,7 +392,6 @@ def _req(method: str, url: str, headers: dict, data: bytes = None, timeout: int 
             except Exception:
                 detail = body[:150]
 
-            # If multiple keys exist, immediately failover on authorization, rate-limit, or server errors
             if len(keys) > 1 and attempt < max_attempts - 1 and e.code in (401, 402, 429, 500, 502, 503, 504):
                 cooldown_sec = 180 if e.code in (401, 402) else (120 if e.code == 429 else 30)
                 mark_key_cooldown(curr_key, seconds=cooldown_sec)
