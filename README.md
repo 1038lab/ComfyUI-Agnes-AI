@@ -128,7 +128,8 @@ Ready-to-use workflows are available in the [example_workflows](./example_workfl
  
 - **[02_Text_and_Image_to_Video.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/02_Text_and_Image_to_Video.json)** — Text-to-video and start-frame keyframe animation with `Agnes-AI Video`. <img src="example_workflows/02_Text_and_Image_to_Video.jpg" width="350" >
  
-- **[03_Prompt_Enhance_and_Vision.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/03_Prompt_Enhance_and_Vision.json)** — Prompt expansion and image reverse-prompt description with `Agnes-AI Text`. <img src="example_workflows/03_Prompt_Enhance_and_Vision.jpg" width="350" >
+- **[03_Prompt_Enhance_and_Vision.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/03_Prompt_Enhance_and_Vision.json)** — Prompt expansion and image reverse-prompt description with `Agnes-AI Text`.
+<img src="example_workflows/03_Prompt_Enhance_and_Vision.jpg" width="350" >
 
 Simply drag and drop any of these `.json` files into ComfyUI to get started immediately!
 
