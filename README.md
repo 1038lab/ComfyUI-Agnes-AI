@@ -8,6 +8,8 @@ ComfyUI custom nodes for the **Agnes AI API** — a free, cloud-based AI generat
 
 ## News & Updates
 
+- **2026/09/17**: Update ComfyUI-Agnes-AI to **v1.2.1** ( [updates.md](updates.md) )
+  - Enabled HTTPS certificate verification by default; fixed API key management in Settings Panel.
 - **2026/09/15**: Update ComfyUI-Agnes-AI to **v1.2.0** ( [updates.md](updates.md) )
   - Upgraded to next-gen Agnes AI models: `agnes-3.0-flash`, `agnes-image-2.5-flash`, and `agnes-video-2.5-flash`.
   - **Dynamic Input Slots**: Nodes start clean with a single input point (`image_0`, `ref_image_0`, `ref_audio_0`) and automatically add new slots as you connect wires.
@@ -63,7 +65,6 @@ No `pip install` needed — zero additional dependencies.
 Open ComfyUI **Settings** (⚙️ gear icon) → search **"Agnes-AI"** → enter your API key.
 
 - Supports multiple backup keys (one per line or comma-separated) with **automatic failover**
-tomatic failover**
 - Alternatively, set the `AGNES_API_KEY` environment variable
 - Key is saved to `agnes_config.json` and persists across restarts
 
@@ -127,7 +128,7 @@ Ready-to-use workflows are available in the [example_workflows](./example_workfl
  
 - **[02_Text_and_Image_to_Video.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/02_Text_and_Image_to_Video.json)** — Text-to-video and start-frame keyframe animation with `Agnes-AI Video`.<img src="example_workflows/02_Text_and_Image_to_Video.jpg" width="350" >
  
-- **[03_Prompt_Enhance_and_Vision.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/03_Prompt_Enhance_and_Vision.json)** — Prompt expansion and image reverse-prompt description with `Agnes-AI Text`. <img src="example_workflows/03_Prompt_Enhance_and_Vision.jpg" width="350" >
+- **[03_Prompt_Enhance_and_Vision.json](https://github.com/1038lab/ComfyUI-Agnes-AI/blob/main/example_workflows/03_Prompt_Enhance_and_Vision.json)** — Prompt expansion and image reverse-prompt description with `Agnes-AI Text`.<img src="example_workflows/03_Prompt_Enhance_and_Vision.jpg" width="350" >
 
 Simply drag and drop any of these `.json` files into ComfyUI to get started immediately!
 

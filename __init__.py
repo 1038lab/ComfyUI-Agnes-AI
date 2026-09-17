@@ -8,7 +8,7 @@ from aiohttp import web
 import server
 
 __repo_name__ = "ComfyUI-Agnes-AI"
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 
 logger = logging.getLogger("AgnesAI")
 

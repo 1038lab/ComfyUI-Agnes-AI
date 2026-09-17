@@ -1,5 +1,9 @@
 # ComfyUI-Agnes-AI Update Log
 
+## V1.2.1 (2026/09/17)
+- **Fixed:** Enabled HTTPS certificate verification by default.
+- **Fixed:** Improved API key management in Settings Panel to prevent accidental overwrites.
+
 ## V1.2.0 (2026/09/16)
 ![Agnes-AI_V1.2.0_Nodes](example_workflows/Agnes-AI_V1.2.0_Nodes.jpg)
 **Next-Gen Models, Dynamic Slots & External Preset System** — Major architectural upgrade introducing Agnes AI's next-generation models, auto-growing connection points, decoupled prompt presets, and production-grade creative assistants:

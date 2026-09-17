@@ -8,6 +8,8 @@ ComfyUI 专用的 **Agnes AI API** 自定义节点插件 —— 免费、免本�
 
 ## 最新动态与更新
 
+- **2026/09/17**: 更新至 **v1.2.1**（详见 [更新日志 updates.md](updates.md)）
+  - 默认开启 HTTPS 证书校验；优化设置面板 API Key 管理，防止误覆盖。
 - **2026/09/16**: 更新至 **v1.2.0**（详见 [更新日志 updates.md](updates.md)）
   - 全面升级至 Agnes AI 新一代旗舰模型：`agnes-3.0-flash`、`agnes-image-2.5-flash` 与 `agnes-video-2.5-flash`。
   - **动态端口生长（ComfyUI 3.0）**：节点初始保持清爽的单端口（`image_0`、`ref_image_0`、`ref_audio_0`），连线后自动新增后续插槽。
